@@ -29,6 +29,11 @@
 		select * from member where member_id = #{memberId}
 	</select> 
 	
+	<!-- 상세조회 by 닉네임 -->
+	<select id="detailByNickname" resultType="memberDto">
+		select * from member where member_nickname = #{memberNickname}
+	</select> 
+	
 	<!-- 수정(Put) -->
 	<update id="update">
 		update member

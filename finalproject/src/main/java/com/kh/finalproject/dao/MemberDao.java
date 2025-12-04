@@ -24,10 +24,13 @@ public class MemberDao {
 		public List<MemberDto> selectList() {
 			return sqlSession.selectList("member.selectList");
 		}
-		
 		// 상세조회
 		public MemberDto selectOne(String memberId) {
 			return sqlSession.selectOne("member.detail", memberId);
+		}
+		// 닉네임 중복 검사용 조회
+		public MemberDto selectOneByMemberNickname(String memberNickname) {
+			return sqlSession.selectOne("member.detailByNickname", memberNickname);
 		}
 	
 	/// 수정
@@ -54,6 +57,8 @@ public class MemberDao {
 	public boolean delete(String memberId) {
 		return sqlSession.delete("member.delete",memberId) > 0;
 	}
+
+
 	
 	
 	
