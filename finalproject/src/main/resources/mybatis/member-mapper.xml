@@ -17,6 +17,54 @@
 			#{memberPost}, #{memberAddress1}, #{memberAddress2}
 		)
 	</insert>
+	
+	<!-- 조회 -->
+	<select id="selectList" resultType="memberDto">
+		select * from member order by member_join desc
+	</select>
+	
+	
+	<!-- 상세조회 -->
+	<select id="detail" resultType="memberDto">
+		select * from member where member_id = #{memberId}
+	</select> 
+	
+	<!-- 수정(Put) -->
+	<update id="update">
+		update member
+		set member_pw=#{memberPw},
+			member_email=#{memberEmail},
+			member_birth=#{memberBirth},
+			member_contact=#{memberContact},
+			member_post=#{memberPost},
+			member_address1=#{memberAddress1},
+			member_address1=#{memberAddress2}
+		where member_id=#{memberId}
+	</update>
+	
+	<update id="updateNickname">
+		update member
+		set member_nickname=#{memberNickname}
+		where member_id=#{memberId}
+	</update>
+	
+	<update id="updatePoint">
+		update member
+		set member_point=#{memberPoint}
+		where member_id=#{memberId}
+	</update>
+	
+	<update id="updateReliabilty">
+		update member
+		set member_reliability=#{memberReliability}
+		where member_id=#{memberId}
+	</update>
+	
+	<!-- 삭제 -->
+	<delete id="delete">
+		delete member where member_id = #{memberId}
+	</delete>
+	
 
 
 </mapper>
