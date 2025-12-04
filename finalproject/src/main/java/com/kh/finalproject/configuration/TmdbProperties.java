@@ -7,8 +7,9 @@ import lombok.Data;
 
 @Data
 @Component
-@ConfigurationProperties(prefix = "custom.movie")
-public class MovieProperties {
+@ConfigurationProperties(prefix = "custom.tmdb")
+public class TmdbProperties {
 	private String key;
 	private String accessToken;
+	private String baseUrl;
 }

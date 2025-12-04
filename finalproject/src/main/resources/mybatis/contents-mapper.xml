@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+ <mapper namespace = "contents">
+ 	
+ 	<insert id="upsertContent" parameterType="com.kh.finalproject.vo.contents.ContentsVO">
+ 		MERGE INTO contents C
+ 		using dual
+ 		on (C.contents_id = #{contentsId})
+ 		WHEN MATCHED THEN
+ 			UPDATE SET
+ 				C.contents_title = #{contentsTitle},
+ 				C.contents_type = #{contentsType},
+ 				C.contents_overview = #{contentsOverview},
+ 				C.contents_poster_path = #{contentsPosterPath},
+ 				C.contents_backdrop_path = #{contentsBackdropPath},
+ 				C.contents_vote_average = #{contentsVoteAverage},
+ 				C.contents_release_date = TO_DATE(#{contentsReleaseDate}, 'YYYY-MM-DD')
+ 		WHEN NOT MATCHED THEN
+ 			INSERT (
+ 				contents_id, contents_title, contents_type, 
+ 				contents_overview, contents_poster_path, 
+ 				contents_backdrop_path, contents_vote_average,
+ 				contents_release_date, contents_language
+ 			)
+ 			VALUES (
+ 				#{contentsId}, #{contentsTitle}, #{contentsType},
+ 				#{contentsOverview}, #{contentsPosterPath},
+ 				#{contentsBackdropPath}, #{contentsVoteAverage},
+ 				TO_DATE(#{contentsReleaseDate}, 'YYYY-MM-DD'), 'ko'
+ 			)
+ 	</insert>
+ 	
+ 	<insert id="upsertGenreMap" parameterType="com.kh.finalproject.vo.contents.ContentsGenreMapVO">
+ 		MERGE INTO contents_genre_map CGM
+ 		USING DUAL
+ 		ON (CGM.contents_id = #{contentsId} AND CGM.genre_id = #{genreId})
+ 		WHEN NOT MATCHED THEN
+ 			INSERT (contents_id, genre_id)
+ 			VALUES (#{contentsId}, #{genreId})
+ 	</insert>
+ 	
+ 	<delete id="deleteGenreMapping" parameterType="long">
+ 		DELETE FROM CONTENTS_GENRE_MAP WHERE CONTENTS_ID = #{contentsId}
+ 	</delete>
+ 	
+ 	<insert id="upsertGenre" parameterType="com.kh.finalproject.dto.contents.ContentsGenreDto">
+        MERGE INTO contents_genre CG
+        USING DUAL
+        ON (CG.genre_id = #{genreId})
+        WHEN MATCHED THEN
+            UPDATE SET 
+                CG.genre_name = #{genreName}
+        WHEN NOT MATCHED THEN
+            INSERT (genre_id, genre_name)
+            VALUES (#{genreId}, #{genreName})
+    </insert>
+    
+    <resultMap id="contentDetailMap" type="com.kh.finalproject.dto.contents.ContentsDetailDto">
+        <id property="contentsId" column="contents_id"/>
+        <result property="contentsTitle" column="contents_title"/>
+        <result property="contentsType" column="contents_type"/>
+        <result property="contentsOverview" column="contents_overview"/>
+        <result property="contentsPosterPath" column="contents_poster_path"/>
+        <result property="contentsBackdropPath" column="contents_backdrop_path"/>
+        <result property="contentsVoteAverage" column="contents_vote_average"/>
+        <result property="contentsRuntime" column="contents_runtime"/>
+        <result property="contentsReleaseDate" column="contents_release_date"/>
+        
+        <!-- 장르 이름을 List<String> 타입의 genreNames 필드에 모아서 매핑합니다. -->
+        <collection property="genreNames" ofType="string">
+            <result column="genre_name"/>
+        </collection>
+    </resultMap>
+    
+    <select id="selectContentDetailWithGenres" resultMap="contentDetailMap" parameterType="long">
+        SELECT
+            C.*,
+            CG.genre_name
+        FROM
+            contents C
+        LEFT JOIN
+            contents_genre_map CGM ON C.contents_id = CGM.contents_id
+        LEFT JOIN
+            contents_genre CG ON CGM.genre_id = CG.genre_id
+        WHERE
+            C.contents_id = #{contentsId}
+    </select>
+  
+ 	
+ </mapper>
