@@ -43,11 +43,31 @@
 		order by quiz_log_solved_at desc
 	</select>
 	
-	<!-- 랭킹을 위한 조회 구문 -->
+	<!-- 내 랭킹을 위한 조회 구문 -->
 	<select id="countCorrectAnswer" resultType="int">
 		select count(*) from quiz_log
 		where quiz_log_member_id = #{quizLogMemberId}
 		  and quiz_log_is_correct = 'Y'
+	</select>
+	
+	<!-- 전체 랭킹을 위한 조회 구문 -->
+	<select id="selectRanking" resultType="RankVO">
+		<![CDATA[
+		select rownum as rank, A.* from (
+			select
+				quiz_log_member_id as memberId,
+				count(quiz_log_id) as score
+			from
+				quiz_log
+			where
+				quiz_log_is_correct = 'Y'
+			group by
+				quiz_log_member_id
+			order by
+				score desc
+			) A
+			where rownum <= 20
+		]]>
 	</select>
 </mapper>
 

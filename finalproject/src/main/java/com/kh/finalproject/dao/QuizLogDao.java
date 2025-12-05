@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.kh.finalproject.dto.QuizLogDto;
+import com.kh.finalproject.vo.RankVO;
 
 @Repository
 public class QuizLogDao {
@@ -33,7 +34,12 @@ public class QuizLogDao {
 		return sqlSession.selectList("quizLog.selectListByMember", quizLogMemberId);
 	}
 	
-	//랭킹을 위한 조회
+	//전체 랭킹을 위한 조회
+	public List<RankVO> selectRanking(){
+		return sqlSession.selectList("quizLog.selectRanking");
+	}
+	
+	//개인 랭킹을 위한 조회
 	public int countCorrectAnswer(String quizLogMemberId) {
 		return sqlSession.selectOne("quizLog.countCorrectAnswer", quizLogMemberId);
 	}

@@ -29,7 +29,7 @@ public class QuizService {
         return quizDao.selectRandomQuizList(contentsId, memberId);
     }
 	
-	// 3. 퀴즈 삭제 (상태만 변경)
+	//퀴즈 삭제 (상태만 변경)
 	//추후 통계를 위해 delete 하는것 보다는 상태만 변경하여 숨김 처리 구현 예정
     public boolean deleteQuiz(long quizId) {
     	QuizDto quizDto = QuizDto.builder()
@@ -40,21 +40,32 @@ public class QuizService {
         return quizDao.updateQuizStatus(quizDto);
     }
     
-    // 4. 퀴즈 수정
+    //퀴즈 수정
     //Token으로 작성자 비교 로직 추가 예정
     public boolean editQuiz(QuizDto quizDto) {
         return quizDao.update(quizDto);
     }
     
-    // 5. 관리자용 목록 조회
+    //관리자용 목록 조회
     // 추후에 관리자인지 아닌지 검사하는 로직 추가 예정
     public List<QuizDto> getQuizList(long contentsId) {
         return quizDao.selectByContent(contentsId);
     }
     
-    // 6. 상세 조회
+    //상세 조회
     //추후 마이페이지에 들어갈 경우 Token 비교 로직 추가 예정
     public QuizDto getQuizDetail(long quizId) {
         return quizDao.selectOne(quizId);
     }
+    
+    //상태 변경 메소드(관리자용)
+    public boolean changeQuizStatus(QuizDto quizDto) {
+        return quizDao.updateQuizStatus(quizDto);
+    }
+    
+    //퀴즈 누적 신고 누적 횟수 변경
+    public boolean reportQuiz(long quizId) {
+        return quizDao.updateQuizReportCount(quizId);
+    }
+    
 }
