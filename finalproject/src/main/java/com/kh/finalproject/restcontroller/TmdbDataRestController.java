@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.kh.finalproject.dto.contents.ContentsDetailDto;
 import com.kh.finalproject.dto.contents.SearchResultDto;
+import com.kh.finalproject.service.GenreService;
 import com.kh.finalproject.service.TmdbApiService;
 import com.kh.finalproject.vo.contents.SaveRequestVO;
 
@@ -27,7 +28,18 @@ import lombok.RequiredArgsConstructor;
 public class TmdbDataRestController {
 
 		@Autowired
+		private GenreService genreService;
+		@Autowired
 		private TmdbApiService tmdbApiService;
+
+		
+		//DB에 장르 마스터 데이터를 초기 저장합니다. //1회만 실시
+	    @GetMapping("/genre/collect")
+	    public String collectGenres() {
+	        genreService.fetchAndSaveAllGenres();
+	        return "장르 마스터 데이터 수집 및 저장 완료";
+	    }
+	    
 		
 		/**
 	     * 1. [검색 엔드포인트] 영화/TV 제목 검색 (TMDB API 호출)

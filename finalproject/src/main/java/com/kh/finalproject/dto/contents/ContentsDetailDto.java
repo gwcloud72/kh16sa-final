@@ -7,7 +7,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-//MyBatis resultMap의 Target DTO가 될 ContentsDetailDTO (기존 ContentsDTO 역할 대체)
+/// *** DB 최종 조회 Dto ***///
+
 @Data @Builder @NoArgsConstructor @AllArgsConstructor
 public class ContentsDetailDto {
 	private Long contentsId; 
@@ -19,6 +20,7 @@ public class ContentsDetailDto {
 	private Double contentsVoteAverage;
 	private Integer contentsRuntime; 
 	private String contentsReleaseDate; 
- 
+	private String contentsDirector; 
+    private String contentsMainCast; 
 	private List<String> genreNames; 
 }

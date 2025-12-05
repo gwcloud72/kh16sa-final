@@ -13,7 +13,9 @@ import com.kh.finalproject.dto.contents.ContentsGenreDto;
 import com.kh.finalproject.dto.contents.TmdbGenreResponseDto;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class GenreService {

@@ -7,6 +7,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/// *** 장르 목록 API 응답 Dto *** /// 
+
 @Data @NoArgsConstructor @Builder @AllArgsConstructor
 public class ContentsGenreDto {
 	@JsonAlias({"id"})

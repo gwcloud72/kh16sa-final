@@ -21,7 +21,7 @@ public class GenreDao {
     
     //장르 매핑 삭제 (업데이트 전용)
     public void deleteGenreMapping(Long contentsId) {
-    	sqlSession.delete("contents.deleteGenreMap", contentsId);
+    	sqlSession.delete("contents.deleteGenreMapping", contentsId);
     }
 
     //장르 마스터 저장 (CONTENTS_GENRE)

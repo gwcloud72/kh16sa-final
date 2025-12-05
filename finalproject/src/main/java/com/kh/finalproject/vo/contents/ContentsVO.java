@@ -7,6 +7,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/// *** DB저장 VO *** ///
+
 @Data @NoArgsConstructor @Builder @AllArgsConstructor
 public class ContentsVO {
 	private Long contentsId; //TBDB에서 제공하는 고유 id
@@ -18,5 +20,8 @@ public class ContentsVO {
 	private Double contentsVoteAverage; //평균평점
 	private String contentsReleaseDate; // 개봉일/최초 방영일 // 영화는 release_date, TV는 first_air_date
 	private String contentsLanguage = "ko" ; // 한국어
-	private List<String> genreNames;
+	private Integer contentsRuntime;
+    private String contentsDirector; 
+    private String contentsMainCast;
+    
 }

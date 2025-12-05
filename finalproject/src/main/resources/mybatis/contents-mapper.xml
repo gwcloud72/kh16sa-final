@@ -16,19 +16,28 @@
  				C.contents_poster_path = #{contentsPosterPath},
  				C.contents_backdrop_path = #{contentsBackdropPath},
  				C.contents_vote_average = #{contentsVoteAverage},
- 				C.contents_release_date = TO_DATE(#{contentsReleaseDate}, 'YYYY-MM-DD')
+ 				C.contents_runtime = #{contentsRuntime},
+ 				C.contents_release_date = TO_DATE(#{contentsReleaseDate}, 'YYYY-MM-DD'),
+                C.contents_director = #{contentsDirector},           
+                C.contents_main_cast = #{contentsMainCast}           
  		WHEN NOT MATCHED THEN
  			INSERT (
  				contents_id, contents_title, contents_type, 
  				contents_overview, contents_poster_path, 
  				contents_backdrop_path, contents_vote_average,
- 				contents_release_date, contents_language
+ 				contents_runtime,
+ 				contents_release_date, contents_language,
+                contents_director,                              
+                contents_main_cast                              
  			)
  			VALUES (
  				#{contentsId}, #{contentsTitle}, #{contentsType},
  				#{contentsOverview}, #{contentsPosterPath},
  				#{contentsBackdropPath}, #{contentsVoteAverage},
- 				TO_DATE(#{contentsReleaseDate}, 'YYYY-MM-DD'), 'ko'
+ 				#{contentsRuntime},
+ 				TO_DATE(#{contentsReleaseDate}, 'YYYY-MM-DD'), 'ko',
+                #{contentsDirector},                            
+                #{contentsMainCast}                             
  			)
  	</insert>
  	
@@ -42,7 +51,7 @@
  	</insert>
  	
  	<delete id="deleteGenreMapping" parameterType="long">
- 		DELETE FROM CONTENTS_GENRE_MAP WHERE CONTENTS_ID = #{contentsId}
+ 		DELETE FROM contents_genre_map WHERE contents_id = #{contentsId}
  	</delete>
  	
  	<insert id="upsertGenre" parameterType="com.kh.finalproject.dto.contents.ContentsGenreDto">
@@ -57,7 +66,7 @@
             VALUES (#{genreId}, #{genreName})
     </insert>
     
-    <resultMap id="contentDetailMap" type="com.kh.finalproject.dto.contents.ContentsDetailDto">
+   <resultMap id="contentDetailMap" type="com.kh.finalproject.dto.contents.ContentsDetailDto">
         <id property="contentsId" column="contents_id"/>
         <result property="contentsTitle" column="contents_title"/>
         <result property="contentsType" column="contents_type"/>
@@ -68,16 +77,19 @@
         <result property="contentsRuntime" column="contents_runtime"/>
         <result property="contentsReleaseDate" column="contents_release_date"/>
         
+        <result property="contentsDirector" column="contents_director"/>       <!-- ★ 추가: 감독 매핑 ★ -->
+        <result property="contentsMainCast" column="contents_main_cast"/>     <!-- ★ 추가: 주연 배우 매핑 ★ -->
+        
         <!-- 장르 이름을 List<String> 타입의 genreNames 필드에 모아서 매핑합니다. -->
         <collection property="genreNames" ofType="string">
-            <result column="genre_name"/>
+            <result column="genre_name_alias"/>
         </collection>
     </resultMap>
     
     <select id="selectContentDetailWithGenres" resultMap="contentDetailMap" parameterType="long">
         SELECT
             C.*,
-            CG.genre_name
+            CG.genre_name AS genre_name_alias
         FROM
             contents C
         LEFT JOIN
@@ -87,6 +99,5 @@
         WHERE
             C.contents_id = #{contentsId}
     </select>
-  
  	
  </mapper>

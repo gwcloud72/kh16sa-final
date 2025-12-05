@@ -9,10 +9,13 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+
+///*** TMDB API 응답 DTO ****///
+
 @Data @Builder @NoArgsConstructor @AllArgsConstructor
 public class ContentsDto {
 	@JsonAlias({"id"})
-	private Long contentsId; //TBDB에서 제공하는 고유 id
+	private Long contentsId; //TMDB에서 제공하는 고유 id
 	
 	// 영화는 title, TV는 name
 	@JsonAlias({"title", "name"})
@@ -39,6 +42,11 @@ public class ContentsDto {
     @JsonAlias({"release_date", "first_air_date"})
 	private String contentsReleaseDate; // 개봉일/최초 방영일
     
-    private List<Integer> genreIds;
+    private String contentsDirector; //감독
+    
+    private String contentsMainCast;
+    
+    @JsonAlias({"genres"})
+    private List<ContentsGenreDto> genres;
 
 }
