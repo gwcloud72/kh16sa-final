@@ -19,8 +19,10 @@ import com.kh.finalproject.dao.MemberDao;
 import com.kh.finalproject.dao.MemberTokenDao;
 import com.kh.finalproject.dto.MemberDto;
 import com.kh.finalproject.error.TargetNotfoundException;
+import com.kh.finalproject.error.UnauthorizationException;
 import com.kh.finalproject.service.TokenService;
 import com.kh.finalproject.vo.MemberLoginResponseVO;
+import com.kh.finalproject.vo.MemberRefreshVO;
 import com.kh.finalproject.vo.TokenVO;
 
 @CrossOrigin
@@ -118,5 +120,22 @@ public class MemberRestController {
 		MemberDto memberDto = memberDao.selectOne(memberId);
 		if(memberDto ==null) throw new TargetNotfoundException("존재하지 않는 회원입니다");
 		memberDao.delete(memberId);
+	}
+	
+	/// 토큰 갱신
+	@PostMapping("/refresh")
+	public MemberLoginResponseVO refresh(@RequestBody MemberRefreshVO memberRefreshVO) {
+		String refreshToken = memberRefreshVO.getRefreshToken();
+		if(refreshToken==null) throw new UnauthorizationException();
+		TokenVO tokenVO = tokenService.parse(refreshToken);
+		boolean valid = tokenService.checkRefreshToken(tokenVO,refreshToken);
+		if(valid == false) throw new TargetNotfoundException();
+		//재생성 후 반환
+		return MemberLoginResponseVO.builder()
+					.loginId(tokenVO.getLoginId())
+					.loginLevel(tokenVO.getLoginLevel())
+					.accessToken(tokenService.generateAccessToken(tokenVO))
+					.refreshToken(tokenService.generateRefreshToken(tokenVO))
+				.build();
 	}
 }

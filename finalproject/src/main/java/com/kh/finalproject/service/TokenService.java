@@ -143,6 +143,19 @@ public class TokenService {
 	}
 	
 	////// checkRefresh Token
+	public boolean checkRefreshToken(TokenVO tokenVO, String refreshToken) {
+		MemberTokenDto memberTokenDto = memberTokenDao.selectOne(
+				MemberTokenDto.builder()
+					.memberTokenTarget(tokenVO.getLoginId())
+					.memberTokenValue(refreshToken.substring(7))
+				.build()
+				);
+		// 결과 없을때
+		if(memberTokenDto == null) return false;
+		memberTokenDao.deleteByTarget(tokenVO.getLoginId());
+		//결과 있음
+		return true;
+	}
 	
 	
 }
