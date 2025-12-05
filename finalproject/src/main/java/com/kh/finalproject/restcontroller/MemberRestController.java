@@ -3,6 +3,7 @@ package com.kh.finalproject.restcontroller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -10,12 +11,19 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.kh.finalproject.dao.MemberDao;
+import com.kh.finalproject.dao.MemberTokenDao;
 import com.kh.finalproject.dto.MemberDto;
 import com.kh.finalproject.error.TargetNotfoundException;
+import com.kh.finalproject.error.UnauthorizationException;
+import com.kh.finalproject.service.TokenService;
+import com.kh.finalproject.vo.MemberLoginResponseVO;
+import com.kh.finalproject.vo.MemberRefreshVO;
+import com.kh.finalproject.vo.TokenVO;
 
 @CrossOrigin
 @RestController
@@ -24,6 +32,12 @@ public class MemberRestController {
 
 	@Autowired
 	private MemberDao memberDao;
+	@Autowired
+	private MemberTokenDao memberTokenDao;
+	@Autowired
+	private TokenService tokenService;
+	@Autowired
+	private PasswordEncoder passwordEncoder;
 	
 	
 	/// 회원가입
@@ -73,8 +87,32 @@ public class MemberRestController {
 	//신뢰도 갱신
 	
 	//로그인
+	@PostMapping("/login")
+	public MemberLoginResponseVO login(@RequestBody MemberDto memberDto) {
+		MemberDto findDto = memberDao.selectOne(memberDto.getMemberId());
+		System.out.println(memberDto);
+		System.out.println(findDto);
+		if(findDto == null) throw new TargetNotfoundException("로그인 오류 - 존재하지 않는 계정");
+		//비밀번호 검사
+			boolean valid = passwordEncoder.matches(memberDto.getMemberPw(), findDto.getMemberPw());
+			if(valid == false) {
+				throw new TargetNotfoundException("비밀번호 불일치");
+			}
+		//로그인 성공
+			return MemberLoginResponseVO.builder()
+					.loginId(findDto.getMemberId())
+					.loginLevel(findDto.getMemberLevel())
+					.accessToken(tokenService.generateAccessToken(findDto))
+					.refreshToken(tokenService.generateRefreshToken(findDto))
+				.build();
+	}
 	
 	//로그아웃
+	@DeleteMapping("/logout")
+	public void logout(@RequestHeader("Authorization") String bearerToken) {
+		TokenVO tokenVO = tokenService.parse(bearerToken);
+		memberTokenDao.deleteByTarget(tokenVO.getLoginId());
+	}
 	
 	//회원탈퇴
 	@DeleteMapping("/{memberId}")
@@ -82,5 +120,22 @@ public class MemberRestController {
 		MemberDto memberDto = memberDao.selectOne(memberId);
 		if(memberDto ==null) throw new TargetNotfoundException("존재하지 않는 회원입니다");
 		memberDao.delete(memberId);
+	}
+	
+	/// 토큰 갱신
+	@PostMapping("/refresh")
+	public MemberLoginResponseVO refresh(@RequestBody MemberRefreshVO memberRefreshVO) {
+		String refreshToken = memberRefreshVO.getRefreshToken();
+		if(refreshToken==null) throw new UnauthorizationException();
+		TokenVO tokenVO = tokenService.parse(refreshToken);
+		boolean valid = tokenService.checkRefreshToken(tokenVO,refreshToken);
+		if(valid == false) throw new TargetNotfoundException();
+		//재생성 후 반환
+		return MemberLoginResponseVO.builder()
+					.loginId(tokenVO.getLoginId())
+					.loginLevel(tokenVO.getLoginLevel())
+					.accessToken(tokenService.generateAccessToken(tokenVO))
+					.refreshToken(tokenService.generateRefreshToken(tokenVO))
+				.build();
 	}
 }

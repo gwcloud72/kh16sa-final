@@ -107,4 +107,12 @@
         	quiz_report_count = quiz_report_count + 1
     	where quiz_id = #{quizId}
 	</update>
+	
+	<!-- 신고 삭제시 숫자 차감 기능 -->
+	<update id="decreaseReportCount">
+    	update quiz
+    	set quiz_report_count = quiz_report_count - 1
+    	where quiz_id = #{quizId}
+      		and quiz_report_count > 0 -- 음수 방지
+	</update>
 </mapper>

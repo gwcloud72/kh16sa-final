@@ -50,13 +50,20 @@ public class QuizDao {
 	}
 	
 	//신고 누적 횟수 변경
-	public boolean updateQuizReportCount(QuizDto quizDto) {
-		return sqlSession.update("quiz.updateQuizReportCount", quizDto) > 0;
+	public boolean updateQuizReportCount(long quizId) {
+		int result = sqlSession.update("quiz.updateQuizReportCount", quizId);
+	
+		return result > 0;
 	}
 	
 	//관리자 상태 변경 메소드(이게 삭제 메소드 역할까지 함)
 	public boolean updateQuizStatus(QuizDto quizDto) {
 		return sqlSession.update("quiz.updateQuizStatus", quizDto) > 0;
+	}
+	
+	//신고 삭제시 카운트 1 감소 메소드
+	public boolean decreaseReportCount(long quizId) {
+	    return sqlSession.update("quiz.decreaseReportCount", quizId) > 0;
 	}
 }
 
