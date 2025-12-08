@@ -9,12 +9,14 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.kh.finalproject.dto.QuizDto;
 import com.kh.finalproject.service.QuizService;
+import com.kh.finalproject.vo.TokenVO;
 
 @CrossOrigin
 @RestController
@@ -28,11 +30,12 @@ public class QuizRestController {
 	//TokenVO로 사용자 조회 및 quiz_creator_id로 등록
 	@PostMapping("/")
 	public QuizDto insert(
-			//TokenVO 추가 예정
-			@RequestBody QuizDto quizDto
+			@RequestBody QuizDto quizDto,
+			@RequestAttribute TokenVO tokenVO
 			) {
-		//토큰에서 memberId 추출 한 후
-		//quizDto.setQuizCreatorId(memberId);
+		//토큰에서 memberId 추출 한 후 작성자 설정
+		String loginId = tokenVO.getLoginId();
+		quizDto.setQuizCreatorId(loginId);
 		
 		return quizService.registQuiz(quizDto);
 	}
@@ -41,24 +44,32 @@ public class QuizRestController {
 	//TokenVO로 사용자 조회
 	@GetMapping("/game/{contentsId}")
 	public List<QuizDto> game(
-			//TokenVO 추가 예정
+			@RequestAttribute TokenVO tokenVO,
 			@PathVariable long contentsId
 			){
+		String loginId = tokenVO.getLoginId();
 		
-		return quizService.getQuizGame(contentsId, "TokenVO.getLoginId()");
+		return quizService.getQuizGame(contentsId, loginId);
 	}
 	
 	//해당 영화의 퀴즈 목록 조회 구문
 	//관리자 페이지로 뺄 가능성 높음
 	@GetMapping("/list/{contentsId}")
-	public List<QuizDto> getList(@PathVariable long contentsId) {
-		//관리자 권한 체크 로직 필요
-		return quizService.getQuizList(contentsId);
+	public List<QuizDto> getList(
+			@RequestAttribute TokenVO tokenVO,
+			@PathVariable long contentsId
+			) {
+		
+		String loginLevel = tokenVO.getLoginLevel();
+		
+		return quizService.getQuizList(contentsId, loginLevel);
 	}
 	
 	//퀴즈 상세정보 조회
 	@GetMapping("/{quizId}")
-	public QuizDto detail(@PathVariable long quizId) {
+	public QuizDto detail(@PathVariable long quizId
+			) {
+		
 		return quizService.getQuizDetail(quizId);
 	}
 	
@@ -66,39 +77,41 @@ public class QuizRestController {
 	//TokenVO로 사용자 조회
 	@PatchMapping("/")
 	public boolean update(
-			//TokenVO 추가 예정,
-			@RequestBody QuizDto quizDto) {
+			@RequestAttribute TokenVO tokenVO,
+			@RequestBody QuizDto quizDto
+			) {
+		String loginId = tokenVO.getLoginId();
 		
-		//토큰 ID와 quizDto.getCreatorId()가 일치하는지 확인
-		return quizService.editQuiz(quizDto);
+		return quizService.editQuiz(quizDto, loginId);
 	}
 	
-	//퀴즈 상태 변경(BLIND, DELETED)
-	//삭제 구문 대신 사용할 메소드
-	//본인 확인 or 관리자인지 확인하는 구문 추가 예정
+	//퀴즈 상태 변경(BLIND)
 	@PatchMapping("/status")
-	public boolean changeStatus(@RequestBody QuizDto quizDto) {
-		// quizDto에는 quizId와 quizStatus("BLIND")가 들어있어야 함
-		return quizService.changeQuizStatus(quizDto);
+	public boolean changeStatus(
+			@RequestAttribute TokenVO tokenVO,
+			@RequestBody QuizDto quizDto
+			) {
+		
+		String loginId = tokenVO.getLoginId();
+		String loginLevel = tokenVO.getLoginLevel();
+
+		
+		return quizService.changeQuizStatus(quizDto, loginId, loginLevel);
 	}
-	
-	//신고 누적 횟수 변경
-	//중복 클릭 불가 처리 예정
-	@PatchMapping("/report/{quizId}")
-	public boolean reportQuiz(@PathVariable long quizId) {
-	    return quizService.reportQuiz(quizId);
-	}
+
 	
 	//퀴즈 삭제
 	@DeleteMapping("/{quizId}")
 	public boolean delete(
-			//TokenVO 추가 예정,
-			@PathVariable long quizId) {
+			@RequestAttribute TokenVO tokenVO,
+			@PathVariable long quizId
+			) {
 		
-		//TokenVO에서 loginId와 loginLevel 추출해서
-		//본인 확인 or 관리자 권한 확인 구현 예정
+		//TokenVO에서 loginId와 loginLevel 추출
+		String loginId = tokenVO.getLoginId();
+		String loginLevel = tokenVO.getLoginLevel();
 		
-		return quizService.deleteQuiz(quizId);
+		return quizService.deleteQuiz(quizId, loginId, loginLevel);
 	}
 	
 	

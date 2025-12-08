@@ -50,7 +50,7 @@ public class QuizDao {
 	}
 	
 	//신고 누적 횟수 변경
-	public boolean updateQuizReportCount(long quizId) {
+	public boolean increaseQuizReportCount(long quizId) {
 		int result = sqlSession.update("quiz.updateQuizReportCount", quizId);
 	
 		return result > 0;
