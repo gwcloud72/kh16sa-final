@@ -10,8 +10,15 @@ public class InterceptorConfiguration implements	WebMvcConfigurer {
 
 	@Autowired
 	private TokenRenewalInterceptor tokenRenewalInterceptor;
+	@Autowired
+	private MemberInterceptor memberInterceptor;
 
 	public void addInterceptors(InterceptorRegistry registry) {
+		
+		//로그인 패싱 인터셉터
+		registry.addInterceptor(memberInterceptor)
+			.addPathPatterns("/member/logout")
+			.excludePathPatterns("");
 		
 		//토큰 재발급 인터셉터
 		registry.addInterceptor(tokenRenewalInterceptor)
