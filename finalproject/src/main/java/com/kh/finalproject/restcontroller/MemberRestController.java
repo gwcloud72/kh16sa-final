@@ -64,6 +64,13 @@ public class MemberRestController {
 		return memberDao.selectList();
 	}
 	
+	@GetMapping("/mypage/{loginId}")
+	public MemberDto selectOneToMypage(
+			@PathVariable String loginId){
+		return memberDao.selectOne(loginId);
+	}
+	
+	
 	//회원정보수정 (전체수정)
 	@PutMapping("/{memberId}")
 	public void edit(
