@@ -112,10 +112,19 @@ public class TmdbDataRestController {
 	    }
  	    
 	    @GetMapping("/contents/list/{genreName}")
-	    public List<ContentsDetailDto> selectListByGenre(@PathVariable String genreName) {
-	    	Map<String, Object> genre = new HashMap<>();
-	    	genre.put("genreName", genreName);
-	    	List<ContentsDetailDto> list = contentsDao.selectListByGenre(genre);
+	    public List<ContentsDetailDto> selectListByGenre(@PathVariable String genreName, 
+	            @RequestParam(defaultValue = "1") Integer page) {
+	    	int size = 12; // 한 페이지당 보여줄 개수 (프론트엔드와 맞춰주세요)
+	        
+	        // Oracle 페이징 계산 (1페이지: 1~12, 2페이지: 13~24 ...)
+	        int end = page * size;
+	        int start = end - (size - 1);
+
+	        Map<String, Object> params = new HashMap<>();
+	        params.put("genreName", genreName);
+	        params.put("start", start);
+	        params.put("end", end);
+	    	List<ContentsDetailDto> list = contentsDao.selectListByGenre(params);
 	    	return list;
 	    }
 }

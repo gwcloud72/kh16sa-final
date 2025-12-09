@@ -25,7 +25,7 @@ public class ContentsDao {
     	return sqlSession.selectOne("contents.selectContentDetailWithGenres", contentsId);
     }
     //장르별 컨텐츠 목록 조회
-    public List<ContentsDetailDto> selectListByGenre(Map<String, Object> genre) {
-    	return sqlSession.selectList("contents.selectContentsByGenre", genre);
+    public List<ContentsDetailDto> selectListByGenre(Map<String, Object> params) {
+    	return sqlSession.selectList("contents.selectContentsByGenre", params);
     }
  }
