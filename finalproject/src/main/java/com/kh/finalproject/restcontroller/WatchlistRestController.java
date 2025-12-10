@@ -3,6 +3,7 @@ package com.kh.finalproject.restcontroller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.kh.finalproject.dao.WatchlistDao;
 import com.kh.finalproject.dto.WatchlistDto;
+import com.kh.finalproject.vo.WatchlistCheckVO;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -23,6 +25,7 @@ public class WatchlistRestController {
 	@Autowired
 	private WatchlistDao watchlistDao;
 	
+	
 	// 북마크 등록
 	@PostMapping("/")
 	public void insert(@RequestBody WatchlistDto watchlistDto) {
@@ -34,5 +37,12 @@ public class WatchlistRestController {
 	public void delete(@PathVariable long contentsId,
 							   @PathVariable String loginId) {
 		watchlistDao.delete(contentsId, loginId);
+	}
+	
+	//북마크 조회(확인용)
+	@PostMapping("/check")
+	public WatchlistCheckVO check(@RequestBody WatchlistDto watchlistDto) {
+		System.out.println("받은 dto"+watchlistDto);
+		return watchlistDao.check(watchlistDto);
 	}
 }

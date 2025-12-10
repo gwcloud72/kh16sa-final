@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.kh.finalproject.dto.WatchlistDto;
+import com.kh.finalproject.vo.WatchlistCheckVO;
 
 @Repository
 public class WatchlistDao {
@@ -23,6 +24,15 @@ public class WatchlistDao {
 		watchlistDto.setWatchlistContent(watchlistContent);
 		watchlistDto.setWatchlistMember(watchlistMember);
 		return sqlSession.delete("watchlist.delete", watchlistDto) > 0;
+	}
+	
+	//조회(확인용)
+	public WatchlistCheckVO check(WatchlistDto watchlistDto) {
+		// memberId가 없으면 검사 x
+		int count = sqlSession.selectOne("watchlist.check",watchlistDto);
+		return WatchlistCheckVO.builder()
+						.hasWatchlist(count>0)
+					.build();
 	}
 	
 }
