@@ -23,6 +23,11 @@ public class ReviewDao {
 		return sqlSession.selectList("review.selectList");
 	}
 	
+	//contentsId로 list 조회
+	public List<ReviewDto> selectListByContentsId (Long reviewContents) {
+		return sqlSession.selectList("review.selectListByContentsId", reviewContents);
+	}
+	
 	public ReviewDto selectOne(Long reviewNo) {
 		return sqlSession.selectOne("review.selectOne", reviewNo);
 	}

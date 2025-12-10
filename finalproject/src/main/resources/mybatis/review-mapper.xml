@@ -36,6 +36,13 @@
 		order by A.review_wtime desc
 	</select>
 	
+	<!-- 컨텐츠 아이디로 조회 -->
+	<select id="selectListByContentsId" resultType="ReviewDto">
+		select * from review where review_contents = #{reviewContents}
+		order by review_wtime desc
+	</select>
+	
+	
 	<!-- 수정 -->
 	<update id="updateUnit"> 
 		update review 

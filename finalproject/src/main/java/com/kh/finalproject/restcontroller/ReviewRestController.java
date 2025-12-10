@@ -45,6 +45,14 @@ public class ReviewRestController {
 		return reviewList;
 	}
 	
+	//컨텐츠 아이디로 조회
+	@GetMapping("/list/{contentsId}")
+	public List<ReviewDto> selectById(@PathVariable Long contentsId) {
+		List<ReviewDto> reviewList = reviewDao.selectListByContentsId(contentsId);
+		if(reviewList == null || reviewList.isEmpty()) throw new TargetNotfoundException();
+		return reviewList;
+	}
+	
 	//수정
 	@PatchMapping("/{reviewNo}")
 	public void updateUnit(@RequestBody ReviewDto reviewDto,
