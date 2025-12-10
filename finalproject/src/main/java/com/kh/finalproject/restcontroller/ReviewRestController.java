@@ -31,19 +31,27 @@ public class ReviewRestController {
 		reviewDao.insert(reviewDto);
 	}
 	
-	//조회
-	@GetMapping("/search")
-	public List<ReviewDto> search() {
-		return reviewDao.selectList();
+	//전체 리뷰 조회
+	@GetMapping("/reviewContents/{reviewContents}")
+	public List<ReviewDto> selectByContents(@PathVariable Long reviewContents) {
+	    return reviewDao.selectByContents(reviewContents);
+	}
+	
+	//로그인 리뷰 조회
+	@GetMapping("/user/{reviewContents}/{loginId}")
+	public ReviewDto selectByUserAndContents(@PathVariable String loginId,
+											@PathVariable Long reviewContents) {
+		ReviewDto reviewDto = reviewDao.selectByUserAndContents(loginId, reviewContents);
+		return reviewDto;
 	}
 
-	//영화 제목으로 조회
-	@GetMapping("/{contentsTitle}")
-	public List<ReviewDto> selectByTitle(@PathVariable String contentsTitle) {
-		List<ReviewDto> reviewList = reviewDao.detail(contentsTitle);
-		if(reviewList == null || reviewList.isEmpty()) throw new TargetNotfoundException();
-		return reviewList;
-	}
+//	//영화 제목으로 조회
+//	@GetMapping("/{contentsTitle}")
+//	public List<ReviewDto> selectByTitle(@PathVariable String contentsTitle) {
+//		List<ReviewDto> reviewList = reviewDao.detail(contentsTitle);
+//		if(reviewList == null || reviewList.isEmpty()) throw new TargetNotfoundException();
+//		return reviewList;
+//	}
 	
 	//수정
 	@PatchMapping("/{reviewNo}")
