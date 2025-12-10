@@ -1,4 +1,4 @@
-package com.kh.finalproject.dto;
+package com.kh.finalproject.vo;
 
 import java.time.LocalDateTime;
 
@@ -10,12 +10,19 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-@Data  @NoArgsConstructor @AllArgsConstructor @Builder
-public class WatchlistDto {
+@Data @AllArgsConstructor @NoArgsConstructor @Builder
+public class MemberWatchListVO {
 
-	private Long watchlistContent; 
+	private long watchlistContent;
 	private String watchlistMember;
 	private String watchlistType;
 	private LocalDateTime watchlistTime;
-
+	
+	private String contentsTitle;
+	private String contentsType;
+	private String contentsPosterPath;
+	private String contentsDirector;
+	private String contentsMainCast;
+	private String contentsRuntime;
+	
 }

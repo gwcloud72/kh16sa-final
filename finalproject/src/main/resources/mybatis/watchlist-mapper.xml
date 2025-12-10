@@ -16,9 +16,16 @@
 	<!-- 삭제 -->
     <delete id="delete">
     	delete watchlist
-    	where watchlist_content=#{watchlist_content}
-			and watchlist_member=#{watchlist_member}
+    	where watchlist_content=#{watchlistContent}
+			and watchlist_member=#{watchlistMember}
     </delete>
+    
+   	<!-- 조회(확인용) : 찜목록 확인용-->
+   	<select id="check" resultType="int"  parameterType="WatchlistDto">
+   		select count(*) from watchlist
+   		where watchlist_content=#{watchlistContent}
+			and watchlist_member=#{watchlistMember}
+   	</select>
 
  	
  </mapper>
