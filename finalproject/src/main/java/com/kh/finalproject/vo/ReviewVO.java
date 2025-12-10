@@ -1,4 +1,4 @@
-package com.kh.finalproject.dto;
+package com.kh.finalproject.vo;
 
 import java.time.LocalDateTime;
 
@@ -18,27 +18,26 @@ import lombok.NoArgsConstructor;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Data @NoArgsConstructor @AllArgsConstructor @Builder
-public class ReviewDto {
-	private Long reviewNo; //리뷰 넘버
+public class ReviewVO {
+	private String memberNickname;
+	private Long reviewNo; 
 	@JsonProperty("contentsId")
-	private Long reviewContents ; //영화id 외래키 (DB의 review_contents지만, 매핑을 위해 이름 변경)
-	@JsonProperty("loginId")
-	private String reviewWriter; //리뷰 작성자(멤버id 외래키)
+	private Long reviewContents;
 	@Min(0)
 	@Max(5)
-	private Integer reviewRating; //리뷰 별점
+	private Integer reviewRating; //금액제면 컬럼+ 필요
 	@NotBlank
-	private String reviewSpoiler; //리뷰 스포체크
+	private String reviewSpoiler; 
 	@NotBlank
-	private String reviewText; //리뷰 내용
+	private String reviewText;
 	@PositiveOrZero
 	@NotNull
-	private Integer reviewLike; //리뷰 좋아요
+	private Integer reviewLike;
 	@PositiveOrZero
 	@NotNull
-	private Integer reviewRealiability; //리뷰 신뢰도
+	private Integer reviewRealiability;
 	@JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
-	private LocalDateTime reviewWtime; //리뷰 작성시간
+	private LocalDateTime reviewWtime; 
 	@JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
-	private LocalDateTime reviewEtime; //리뷰 수정시간
+	private LocalDateTime reviewEtime;
 }

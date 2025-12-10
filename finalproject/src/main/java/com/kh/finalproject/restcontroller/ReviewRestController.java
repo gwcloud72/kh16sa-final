@@ -31,24 +31,32 @@ public class ReviewRestController {
 	private ReviewLikeDao reviewLikeDao;
 	
 	//등록
-	@PostMapping("/insert")
+	@PostMapping("/")
 	public void insert(@RequestBody ReviewDto reviewDto) {
 		reviewDao.insert(reviewDto);
 	}
 	
-	//조회
-	@GetMapping("/search")
-	public List<ReviewDto> search() {
-		return reviewDao.selectList();
+	//전체 리뷰 조회
+	@GetMapping("/reviewContents/{reviewContents}")
+	public List<ReviewDto> selectByContents(@PathVariable Long reviewContents) {
+	    return reviewDao.selectByContents(reviewContents);
+	}
+	
+	//로그인 리뷰 조회
+	@GetMapping("/user/{reviewContents}/{loginId}")
+	public ReviewDto selectByUserAndContents(@PathVariable String loginId,
+											@PathVariable Long reviewContents) {
+		ReviewDto reviewDto = reviewDao.selectByUserAndContents(loginId, reviewContents);
+		return reviewDto;
 	}
 
-	//영화 제목으로 조회
-	@GetMapping("/{contentsTitle}")
-	public List<ReviewDto> selectByTitle(@PathVariable String contentsTitle) {
-		List<ReviewDto> reviewList = reviewDao.detail(contentsTitle);
-		if(reviewList == null || reviewList.isEmpty()) throw new TargetNotfoundException();
-		return reviewList;
-	}
+//	//영화 제목으로 조회
+//	@GetMapping("/{contentsTitle}")
+//	public List<ReviewDto> selectByTitle(@PathVariable String contentsTitle) {
+//		List<ReviewDto> reviewList = reviewDao.detail(contentsTitle);
+//		if(reviewList == null || reviewList.isEmpty()) throw new TargetNotfoundException();
+//		return reviewList;
+//	}
 	
 	//컨텐츠 아이디로 조회
 	@GetMapping("/list/{contentsId}")
@@ -76,6 +84,8 @@ public class ReviewRestController {
 	//삭제
 	@DeleteMapping("/{reviewNo}")
 	public void delete(@PathVariable Long reviewNo) {
+		ReviewDto originDto = reviewDao.selectOne(reviewNo);
+		if(originDto == null)throw new TargetNotfoundException();
 		
 		boolean success = reviewDao.delete(reviewNo);
 		if(!success) {
