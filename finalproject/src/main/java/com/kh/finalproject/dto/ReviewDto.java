@@ -4,7 +4,6 @@ import java.time.LocalDateTime;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
 
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -20,9 +19,7 @@ import lombok.NoArgsConstructor;
 @Data @NoArgsConstructor @AllArgsConstructor @Builder
 public class ReviewDto {
 	private Long reviewNo; //리뷰 넘버
-	@JsonProperty("contentsId")
 	private Long reviewContents ; //영화id 외래키 (DB의 review_contents지만, 매핑을 위해 이름 변경)
-	@JsonProperty("loginId")
 	private String reviewWriter; //리뷰 작성자(멤버id 외래키)
 	@Min(0)
 	@Max(5)
