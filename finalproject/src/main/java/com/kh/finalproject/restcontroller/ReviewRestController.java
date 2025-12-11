@@ -51,9 +51,9 @@ public class ReviewRestController {
 	}
 
 	// 로그인 리뷰 조회
-	@GetMapping("/user/{reviewContents}/{loginId}")
-	public ReviewVO selectByUserAndContents(@PathVariable String loginId, @PathVariable Long reviewContents) {
-		ReviewVO reviewVO = reviewDao.selectByUserAndContents(loginId, reviewContents);
+	@GetMapping("/user/{reviewContents}/{reviewWriter}")
+	public ReviewVO selectByUserAndContents(@PathVariable String reviewWriter, @PathVariable Long reviewContents) {
+		ReviewVO reviewVO = reviewDao.selectByUserAndContents(reviewWriter, reviewContents);
 		return reviewVO;
 	}
 
