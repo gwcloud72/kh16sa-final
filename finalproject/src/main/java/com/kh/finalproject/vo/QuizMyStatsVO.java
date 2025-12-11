@@ -9,11 +9,12 @@ import lombok.NoArgsConstructor;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Data @NoArgsConstructor @AllArgsConstructor @Builder
-public class RankVO {
+public class QuizMyStatsVO {
 	
-	private int rank;
-    private String memberId;
-    private String memberNickname;
-    //private String memberImg;
-    private int score;
+	private int totalSolved;   // 푼 문제 수
+    private int myScore;       // 내 점수 (정답 수 * 20)
+    private int myRank;        // 내 등수
+    private int totalUsers;    // 전체 참여자 수 (상위 % 계산용)
+    
+    private double accuracy;   // 정답률
 }

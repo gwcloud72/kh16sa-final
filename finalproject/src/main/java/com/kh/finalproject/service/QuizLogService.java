@@ -6,10 +6,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.kh.finalproject.dao.QuizDao;
 import com.kh.finalproject.dao.QuizLogDao;
 import com.kh.finalproject.dto.QuizLogDto;
 import com.kh.finalproject.error.NeedPermissionException;
 import com.kh.finalproject.error.TargetNotfoundException;
+import com.kh.finalproject.vo.QuizMyStatsVO;
 import com.kh.finalproject.vo.RankVO;
 
 @Service
@@ -17,6 +19,9 @@ public class QuizLogService {
 
 	@Autowired
 	private QuizLogDao quizLogDao;
+	
+	@Autowired
+	private QuizDao quizDao;
 	
 	
 	@Transactional
@@ -31,10 +36,13 @@ public class QuizLogService {
 		for(QuizLogDto log : logList) {
 			
 			//퀴즈 풀이 이용자 등록
-			log.setQuizLogUserId(memberId);
+			log.setQuizLogMemberId(memberId);
 			
 			//퀴즈 기록을 개별로 저장
 			quizLogDao.insert(log);
+			
+			//퀴즈 이용자수 증가
+			quizDao.increaseSolveCount(log.getQuizLogQuizId());
 			
 			//정답 개수 카운트
 			if("Y".equals(log.getQuizLogIsCorrect())) {
@@ -59,7 +67,7 @@ public class QuizLogService {
 		if(requesterId == null) throw new NeedPermissionException("로그인이 필요합니다.");
 		
 		//본인 확인 및 관리자 확인 로직
-		boolean isOwner = log.getQuizLogUserId().equals(requesterId);
+		boolean isOwner = log.getQuizLogMemberId().equals(requesterId);
 	    boolean isAdmin = "관리자".equals(requesterLevel);
 		
 	    if (!isOwner && !isAdmin) throw new NeedPermissionException();
@@ -86,10 +94,14 @@ public class QuizLogService {
 		return quizLogDao.countCorrectAnswer(memberId);
 	}
 	
-	// TOP랭킹 20위 가져오기
-	public List<RankVO> getRankingList() {
-		
-		return quizLogDao.selectRanking();
+	//랭킹 통계 조회
+	public QuizMyStatsVO getMyStats(int contentsId, String memberId) {
+		return quizLogDao.getMyStats(contentsId, memberId);
+	}
+	
+	//영화별 TOP랭킹 20위 가져오기
+	public List<RankVO> getRanking(int contentsId) {
+		return quizLogDao.getRanking(contentsId);
 	}
 	
 	//어떤 사람이 해당 컨텐츠의 문제를 풀었는지 조회

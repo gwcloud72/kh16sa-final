@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.kh.finalproject.dto.QuizLogDto;
 import com.kh.finalproject.service.QuizLogService;
+import com.kh.finalproject.vo.QuizMyStatsVO;
 import com.kh.finalproject.vo.RankVO;
 import com.kh.finalproject.vo.TokenVO;
 
@@ -64,11 +65,20 @@ public class QuizLogRestController {
 		return quizLogService.getMyScore(tokenVO.getLoginId());
 	}
 	
-	//전체 랭킹 확인
-	@GetMapping("/ranking")
-	public List<RankVO> getRanking() {
-		return quizLogService.getRankingList();
-	}
+	//내 랭킹 통계 확인
+	@GetMapping("/stats/{contentsId}/{memberId}")
+    public QuizMyStatsVO getMyStats(
+            @PathVariable int contentsId, 
+            @PathVariable String memberId) {
+        
+        return quizLogService.getMyStats(contentsId, memberId);
+    }
+	
+	//영화별 전체 랭킹 확인
+	@GetMapping("/list/ranking/{contentsId}")
+    public List<RankVO> getRanking(@PathVariable int contentsId) {
+        return quizLogService.getRanking(contentsId);
+    }
 	
 	//어떤 사람이 해당 문제를 풀었는지 확인(관리자용)
 	@GetMapping("/quiz/{quizLogQuizId}")

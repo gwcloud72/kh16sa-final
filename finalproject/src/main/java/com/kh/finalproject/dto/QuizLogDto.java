@@ -18,7 +18,7 @@ public class QuizLogDto {
 	private Long quizLogId;
 	
 	//외래키 설정
-	private String quizLogUserId;
+	private String quizLogMemberId;
 	private Long quizLogQuizId;
 	
 	//퀴즈 정답 처리 및 푼 시간 설정

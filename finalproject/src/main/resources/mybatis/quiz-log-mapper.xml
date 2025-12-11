@@ -51,24 +51,64 @@
 	</select>
 	
 	<!-- 전체 랭킹을 위한 조회 구문 -->
-	<select id="selectRanking" resultType="RankVO">
-		<![CDATA[
-		select rownum as rank, A.* from (
-			select
-				quiz_log_member_id as memberId,
-				count(quiz_log_id) as score
-			from
-				quiz_log
-			where
-				quiz_log_is_correct = 'Y'
-			group by
-				quiz_log_member_id
-			order by
-				score desc
-			) A
-			where rownum <= 20
-		]]>
+	<select id="selectRanking" resultType="com.kh.finalproject.vo.RankVO">
+        select * from (
+            select 
+                --점수 높은 순
+                RANK() OVER (order by sum(case when L.quiz_log_is_correct = 'Y' THEN 20 ELSE 0 END) desc) as "rank",
+                
+                --회원 ID
+                L.quiz_log_member_id as "memberId",
+                
+                --닉네임
+                M.member_nickname as "memberNickname",
+                
+                --점수
+                sum(case when L.quiz_log_is_correct = 'Y' THEN 20 ELSE 0 END) as "score"
+                
+            from quiz_log L
+            join member M ON L.quiz_log_member_id = M.member_id
+            join quiz Q ON L.quiz_log_quiz_id = Q.quiz_id 
+            
+            where Q.quiz_contents_id = #{contentsId} 
+            
+            group by L.quiz_log_member_id, M.member_nickname
+        )
+        <![CDATA[
+        where "rank" <= 20
+        ]]>
+    </select>
+    
+    <select id="selectMyStats" resultType="QuizMyStatsVO">
+		select * from (
+		    select 
+		        L.quiz_log_member_id,
+		        
+		        --푼 문제 수
+		        count(*) as total_solved,
+		        
+		        --정답 'Y' 개수 * 20점
+		        sum(case when L.quiz_log_is_correct = 'Y' THEN 20 ELSE 0 END) as my_score,
+		        
+		        -- (정답수 / 전체수) * 100
+                ROUND(
+        			(COUNT(CASE WHEN L.quiz_log_is_correct = 'Y' THEN 1 END) * 100.0) / COUNT(*)
+    				, 1) as accuracy,
+		        
+		        --내 최고 점수
+		        rank() over (order by sum(case when L.quiz_log_is_correct = 'Y' THEN 20 ELSE 0 END) desc) as my_rank,
+		        
+		        --전체 참여자 수
+		        count(*) over () as total_users
+		        
+		    from quiz_log L
+		    join quiz Q ON L.quiz_log_quiz_id = Q.quiz_id
+		    where Q.quiz_contents_id = #{contentsId}
+		    group by L.quiz_log_member_id
+		) 
+		WHERE quiz_log_member_id = #{memberId}
 	</select>
+
 </mapper>
 
 
