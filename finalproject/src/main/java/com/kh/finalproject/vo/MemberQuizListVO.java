@@ -1,0 +1,23 @@
+package com.kh.finalproject.vo;
+
+import java.time.LocalDateTime;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+@Data @AllArgsConstructor @NoArgsConstructor @Builder
+public class MemberQuizListVO {
+
+	private String quizLogMemberId;
+	private int quizLogQuizId;
+	private String quizLogIsCorrect;
+	private String quizQuestion;
+	private int quizSolveCount;
+
+}

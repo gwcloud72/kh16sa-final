@@ -16,14 +16,17 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.kh.finalproject.dao.MemberDao;
+import com.kh.finalproject.dao.MemberQuizDao;
 import com.kh.finalproject.dao.MemberReviewDao;
 import com.kh.finalproject.dao.MemberTokenDao;
 import com.kh.finalproject.dao.MemberWatchDao;
 import com.kh.finalproject.dto.MemberDto;
+import com.kh.finalproject.dto.QuizDto;
 import com.kh.finalproject.error.TargetNotfoundException;
 import com.kh.finalproject.error.UnauthorizationException;
 import com.kh.finalproject.service.TokenService;
 import com.kh.finalproject.vo.MemberLoginResponseVO;
+import com.kh.finalproject.vo.MemberQuizListVO;
 import com.kh.finalproject.vo.MemberRefreshVO;
 import com.kh.finalproject.vo.MemberReviewListVO;
 import com.kh.finalproject.vo.MemberWatchListVO;
@@ -46,6 +49,9 @@ public class MemberRestController {
 	private MemberReviewDao memberReviewDao;
 	@Autowired
 	private MemberWatchDao memberWatchDao;
+	@Autowired
+	private MemberQuizDao memberQuizDao;
+	
 	
 	/// 회원가입
 	@PostMapping("/")
@@ -178,6 +184,16 @@ public class MemberRestController {
 	@GetMapping("/mywatch/{loginId}")
 	public List<MemberWatchListVO> selectWatchList(@PathVariable String loginId){
 		return memberWatchDao.selectList(loginId);
+	}
+	// 등록한 퀴즈 
+	@GetMapping("/myaddquiz/{loginId}")
+	public List<QuizDto>selectAddQuizList(@PathVariable String loginId){
+		return memberQuizDao.selectAddList(loginId);
+	}
+	// 내가 푼 퀴즈 목록
+	@GetMapping("/myanswerquiz/{loginId}")
+	public List<MemberQuizListVO> selectAnwserQuizList(@PathVariable String loginId){
+		return memberQuizDao.selectAnswerList(loginId);
 	}
 
 

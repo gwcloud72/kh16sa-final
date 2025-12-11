@@ -52,12 +52,17 @@
 		select 
 			quiz_id, 
         	quiz_contents_id, 
+        	quiz_question_type,
+        	quiz_question_option1,
+        	quiz_question_option2,
+        	quiz_question_option3,
+        	quiz_question_option4,
         	quiz_question, 
         	quiz_answer,
         	quiz_solve_count
 		 from quiz
-		where quiz_creator_id = #{quizCreatorId}
-		order by quiz_id desc;
+		where quiz_creator_id = #{loginId}
+		order by quiz_id desc
 	</select>
 	
 	<!-- 퀴즈 수정을 위한 조회 구문 -->
