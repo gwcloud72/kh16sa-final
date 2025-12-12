@@ -62,8 +62,11 @@ public class ReviewDao {
 	}
 	
 	//삭제
-	public boolean delete(Long reviewNo) {
-		return sqlSession.delete("review.delete", reviewNo) > 0;
+	public boolean delete(Long reviewContents, Long reviewNo) {
+		Map<String, Object> map3 = new HashMap<>();
+		map3.put("reviewContents", reviewContents);
+		map3.put("reviewNo", reviewNo);
+		return sqlSession.delete("review.delete", map3) > 0;
 	}
 	
 	

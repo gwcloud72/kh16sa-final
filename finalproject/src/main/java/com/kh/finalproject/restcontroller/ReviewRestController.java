@@ -20,7 +20,7 @@ import com.kh.finalproject.dto.ReviewDto;
 import com.kh.finalproject.error.TargetNotfoundException;
 import com.kh.finalproject.vo.ReviewLikeVO;
 
-@CrossOrigin
+@CrossOrigin 
 @RestController
 @RequestMapping("/review")
 public class ReviewRestController {
@@ -91,17 +91,34 @@ public class ReviewRestController {
 	}
 
 	// 삭제
-	@DeleteMapping("/{reviewNo}")
-	public void delete(@PathVariable Long reviewNo) {
-		ReviewDto originDto = reviewDao.selectOne(reviewNo);
-		if (originDto == null)
-			throw new TargetNotfoundException();
+//	@DeleteMapping("/{reviewNo}")
+//	public void delete(
+//			@PathVariable Long reviewNo) {
+//		System.out.println("삭제 메서드 진입");
+//		ReviewDto originDto = reviewDao.selectOne(reviewNo);
+//		if (originDto == null)
+//			throw new TargetNotfoundException();
+//
+//		boolean success = reviewDao.delete(reviewNo);
+//		if (!success) {
+//			throw new TargetNotfoundException(); // 삭제실패
+//		}
+//	}
+	
+	@DeleteMapping("/{reviewContents}/{reviewNo}")
+    public void delete(
+        @PathVariable("reviewContents") Long reviewContents,
+        @PathVariable("reviewNo") Long reviewNo
+    ) {
+        System.out.println("삭제 메서드 진입");
 
-		boolean success = reviewDao.delete(reviewNo);
-		if (!success) {
-			throw new TargetNotfoundException(); // 삭제실패
-		}
-	}
+        ReviewDto originDto = reviewDao.selectOne(reviewContents, reviewNo);
+        if(originDto == null) throw new TargetNotfoundException();
+
+        boolean success = reviewDao.delete(reviewContents, reviewNo);
+        if(!success) throw new TargetNotfoundException();
+    }
+
 
 	// 좋아요 관련
 

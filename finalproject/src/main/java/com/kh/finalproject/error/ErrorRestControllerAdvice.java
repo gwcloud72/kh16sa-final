@@ -15,6 +15,11 @@ public class ErrorRestControllerAdvice {
 		public ResponseEntity<String> notFound(TargetNotfoundException e) {
 			return ResponseEntity.notFound().build(); // 404
 		}
+		
+//	    @ExceptionHandler(value= {TargetNotfoundException.class, NoResourceFoundException.class})
+//	    public ResponseEntity<String> notFound(RuntimeException e) { 
+//	        return ResponseEntity.notFound().build(); // 404
+//	    }
 
 		@ExceptionHandler(UnauthorizationException.class)
 		public ResponseEntity<String> unauthorize(UnauthorizationException e) {

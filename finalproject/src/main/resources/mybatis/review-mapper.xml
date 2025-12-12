@@ -69,7 +69,9 @@
 	
 	<!-- 삭제 -->
 	<delete id="delete">
-		delete review where review_no = #{reviewNo}
+		delete review where
+		review_contents = #{reviewContents} and
+		review_no = #{reviewNo}
 	</delete>
 	
 
