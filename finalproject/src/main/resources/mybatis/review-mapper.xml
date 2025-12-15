@@ -58,13 +58,15 @@
 				review_spoiler = #{reviewSpoiler},
 			</if>
 			<if test="reviewText != null">
-				review_text = #{reviewText}
+				review_text = #{reviewText},
 			</if>
 			<if test="reviewPrice != null">
-				review_price = #{reviewPrice}
+				review_price = #{reviewPrice},
 			</if>
 		</set>
-		where review_no = #{reviewNo}
+		where
+		review_contents = #{reviewContents} and
+		review_no = #{reviewNo}
 	</update>
 	
 	<!-- 삭제 -->
