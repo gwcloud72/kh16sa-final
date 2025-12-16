@@ -31,6 +31,8 @@ import com.kh.finalproject.vo.MemberQuizRateVO;
 import com.kh.finalproject.vo.MemberRefreshVO;
 import com.kh.finalproject.vo.MemberReviewListVO;
 import com.kh.finalproject.vo.MemberWatchListVO;
+import com.kh.finalproject.vo.PageResponseVO;
+import com.kh.finalproject.vo.PageVO;
 import com.kh.finalproject.vo.TokenVO;
 
 @CrossOrigin
@@ -193,9 +195,16 @@ public class MemberRestController {
 //	}
 	// 등록한 퀴즈 + 페이지네이션
 	@GetMapping("/myaddquiz/{loginId}/{page}")
-	public List<MemberAddQuizListVO> selectAddQuizListWithPage(
+	public PageResponseVO<MemberAddQuizListVO> selectAddQuizListWithPage(
 				@PathVariable String loginId, @PathVariable int page){
-		return memberQuizDao.selectMyQuizListWithPage(loginId, page);
+		int totalCount = memberQuizDao.countMyQuiz(loginId);
+		PageVO pageVO = new PageVO();
+		pageVO.setPage(page);
+		pageVO.setTotalCount(totalCount);
+		
+		 List<MemberAddQuizListVO> list =
+			     memberQuizDao.selectMyQuizListWithPage(loginId, pageVO);
+		 return new PageResponseVO<>(list, pageVO);
 	}
 	// 내가 푼 퀴즈 목록
 	@GetMapping("/myanswerquiz/{loginId}")

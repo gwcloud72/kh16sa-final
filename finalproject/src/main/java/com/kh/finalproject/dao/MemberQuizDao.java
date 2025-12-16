@@ -21,14 +21,17 @@ public class MemberQuizDao {
 	private SqlSession sqlSession;
 	
 	//내가 등록한 퀴즈 목록 조회
-	public List<MemberAddQuizListVO> selectMyQuizListWithPage(String loginId, int page) {
-		PageVO pageVO = new PageVO();
-		pageVO.setPage(page);
+	public List<MemberAddQuizListVO> selectMyQuizListWithPage(String loginId, PageVO pageVO) {
 		Map<String, Object> param = new HashMap<>();
 		param.put("loginId", loginId);
-		param.put("page", pageVO);
-	    return sqlSession.selectList("quiz.listByMyQuizWithPage", param);
+		param.put("pageVO", pageVO);
+	    return sqlSession.selectList("memberQuiz.listByMyQuizWithPage", param);
 	}
+	public int countMyQuiz(String loginId) {
+		return sqlSession.selectOne("memberQuiz.countMyQuiz", loginId);
+	}
+	
+	
 	/// 내가 푼 퀴즈 관련 항목
 	// 푼 퀴즈 리스트
 	public List<MemberQuizListVO> selectAnswerList(String loginId){
