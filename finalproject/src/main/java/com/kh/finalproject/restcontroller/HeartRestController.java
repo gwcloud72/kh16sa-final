@@ -22,7 +22,7 @@ public class HeartRestController {
 	private HeartService heartService;
 	
 	//내 하트 정보 조회
-	@GetMapping("/info")
+	@GetMapping("/")
 	public HeartDto getMyHeart(@RequestAttribute TokenVO tokenVO) {
 		return heartService.getHeartInfo(tokenVO.getLoginId());
 	}
