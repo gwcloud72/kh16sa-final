@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="dailyquest">
+
+    <select id="selectTodayLogs" resultType="map">
+        SELECT 
+            POINT_GET_QUEST_TYPE as "type", 
+            POINT_GET_CURRENT_COUNT as "currentCount", 
+            POINT_GET_REWARD_YN as "rewardYn"
+        FROM POINT_GET_QUEST_LOG
+        WHERE POINT_GET_MEMBER_ID = #{userId}
+          AND POINT_GET_QUEST_DATE = #{date}
+    </select>
+
+    <update id="upsertQuestLog" parameterType="map">
+        MERGE INTO POINT_GET_QUEST_LOG L
+        USING DUAL
+        ON (
+            L.POINT_GET_MEMBER_ID = #{userId} 
+            AND L.POINT_GET_QUEST_TYPE = #{type} 
+            AND L.POINT_GET_QUEST_DATE = #{date}
+        )
+        WHEN MATCHED THEN
+            UPDATE SET 
+                L.POINT_GET_CURRENT_COUNT = L.POINT_GET_CURRENT_COUNT + 1,
+                L.POINT_GET_UPDATED_AT = SYSDATE
+        WHEN NOT MATCHED THEN
+            INSERT (
+                POINT_GET_QUEST_LOG_ID, POINT_GET_MEMBER_ID, POINT_GET_QUEST_TYPE, 
+                POINT_GET_QUEST_DATE, POINT_GET_CURRENT_COUNT
+            )
+            VALUES (
+                SEQ_POINT_GET_QUEST_LOG_ID.NEXTVAL, #{userId}, #{type}, 
+                #{date}, 1
+            )
+    </update>
+    
+    <update id="updateRewardStatus">
+        UPDATE POINT_GET_QUEST_LOG
+        SET POINT_GET_REWARD_YN = 'Y',
+            POINT_GET_UPDATED_AT = SYSDATE
+        WHERE POINT_GET_MEMBER_ID = #{userId}
+          AND POINT_GET_QUEST_TYPE = #{type}
+          AND POINT_GET_QUEST_DATE = #{date}
+    </update>
+
+</mapper>

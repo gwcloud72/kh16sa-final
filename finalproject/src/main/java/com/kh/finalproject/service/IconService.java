@@ -1,16 +1,19 @@
 package com.kh.finalproject.service;
 
 import java.util.List;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.kh.finalproject.dao.IconDao;
+import com.kh.finalproject.dao.InventoryDao;
 import com.kh.finalproject.dao.MemberDao;
 import com.kh.finalproject.dao.MemberIconDao;
 import com.kh.finalproject.dao.PointHistoryDao;
-import com.kh.finalproject.dao.PointInventoryDao;
 import com.kh.finalproject.dto.IconDto;
+import com.kh.finalproject.dto.InventoryDto;
 import com.kh.finalproject.dto.MemberDto;
 import com.kh.finalproject.dto.MemberIconDto;
 import com.kh.finalproject.dto.PointHistoryDto;
@@ -19,36 +22,30 @@ import com.kh.finalproject.vo.IconPageVO;
 @Service
 public class IconService {
 
-    // ★ [수정] DAO 2개 주입
-    @Autowired private IconDao iconDao;           // 아이콘 정보 (관리자용)
-    @Autowired private MemberIconDao memberIconDao; // 보유 현황 (사용자용)
-    @Autowired private PointInventoryDao pointInventoryDao;
-    @Autowired private MemberDao memberDao;       // 포인트 환급용
+    @Autowired private IconDao iconDao;         
+    @Autowired private MemberIconDao memberIconDao; 
+    @Autowired private InventoryDao inventoryDao;
+    @Autowired private MemberDao memberDao;       
     @Autowired private PointHistoryDao pointHistoryDao;
 
     // -----------------------------------------------------
-    // 1. [관리자] CRUD 기능 -> IconDao 사용
+    // 1. [관리자] CRUD 기능
     // -----------------------------------------------------
     public List<IconDto> getAllIcons() { 
         return iconDao.selectList(); 
     }
+
     public IconPageVO getIconList(int page, String type) {
-        int size = 10; // 한 페이지에 10개씩
+        int size = 10; 
         
-        // 1. 필터에 맞는 전체 개수 조회
         int totalCount = iconDao.countIcons(type);
-        
-        // 2. 전체 페이지 수 계산
         int totalPage = (totalCount + size - 1) / size;
         
-        // 3. 현재 페이지에 해당하는 ROWNUM 범위 계산
         int startRow = (page - 1) * size + 1;
         int endRow = page * size;
 
-        // 4. 데이터 조회
         List<IconDto> list = iconDao.selectListPaging(startRow, endRow, type);
         
-        // 5. VO 포장
         return IconPageVO.builder()
                 .list(list)
                 .totalPage(totalPage)
@@ -56,6 +53,7 @@ public class IconService {
                 .totalCount(totalCount)
                 .build();
     }
+
     @Transactional
     public void addIcon(IconDto dto) { 
         iconDao.insert(dto); 
@@ -72,103 +70,109 @@ public class IconService {
     }
 
     // -----------------------------------------------------
-    // 2. [사용자] 뽑기 및 조회 -> IconDao + MemberIconDao 혼합 사용
+    // 2. [사용자] 기능 (보유 목록, 뽑기, 장착)
     // -----------------------------------------------------
     
     // 내 보유 아이콘 목록
     public List<MemberIconDto> getMyIcons(String memberId) {
-        // ★ [수정] MemberIconDao 사용
+       
         return memberIconDao.selectMyIcons(memberId);
-    }	
+    }   
 
     // 대망의 [아이콘 뽑기] 로직
     @Transactional
-    public IconDto drawRandomIcon(String memberId, int inventoryNo) {
+    public IconDto drawRandomIcon(String memberId, long inventoryNo) { 
         
         // 1. [티켓 차감]
-        boolean isDeleted = pointInventoryDao.delete(inventoryNo);
-     
-        if (!isDeleted) {
-            throw new RuntimeException("티켓을 찾을 수 없거나 이미 사용되었습니다.");
-        }
-
-        // 2. [뽑기 로직]
-        List<IconDto> allIcons = iconDao.selectList();
+   
+        InventoryDto ticket = inventoryDao.selectOne((int)inventoryNo); 
         
-        // EVENT 등급 제외 필터링
+        if (ticket == null || !ticket.getInventoryMemberId().equals(memberId)) {
+            throw new RuntimeException("티켓을 찾을 수 없거나 사용 권한이 없습니다.");
+        }
+        
+        if (ticket.getInventoryQuantity() > 1) {
+            ticket.setInventoryQuantity(ticket.getInventoryQuantity() - 1);
+            inventoryDao.update(ticket);
+        } else {
+            inventoryDao.delete((int)inventoryNo);
+        }
+    
+        // 2. [확률 뽑기]
+        List<IconDto> allIcons = iconDao.selectList(); 
+        
         List<IconDto> gachaPool = allIcons.stream()
                 .filter(i -> !"EVENT".equalsIgnoreCase(i.getIconRarity()))
-                .toList();
-
+                .collect(Collectors.toList()); 
+    
         if(gachaPool.isEmpty()) throw new RuntimeException("뽑기 가능한 아이콘이 없습니다.");
-
-        // 확률 로직
+    
         double random = Math.random() * 100; 
         String targetRarity = "COMMON";
+        
         if (random < 0.5) targetRarity = "LEGENDARY";
         else if (random < 3.0) targetRarity = "UNIQUE";
         else if (random < 10.0) targetRarity = "EPIC";
         else if (random < 40.0) targetRarity = "RARE";
-
-        // 등급 필터링
+    
         String finalRarity = targetRarity;
         List<IconDto> pool = gachaPool.stream()
                 .filter(i -> i.getIconRarity().equalsIgnoreCase(finalRarity))
-                .toList();
-
-        if (pool.isEmpty()) { // 해당 등급이 없을 경우 꽝 방지(COMMON)
-            pool = gachaPool.stream().filter(i -> i.getIconRarity().equalsIgnoreCase("COMMON")).toList();
+                .collect(Collectors.toList());
+    
+        if (pool.isEmpty()) { 
+            pool = gachaPool.stream()
+                    .filter(i -> i.getIconRarity().equalsIgnoreCase("COMMON"))
+                    .collect(Collectors.toList());
         }
-
-        // 아이콘 선택
+    
         IconDto picked = pool.get((int)(Math.random() * pool.size()));
-
-        // 3. [지급 로직] 중복 체크 및 지급
+    
+        // 3. [지급 및 중복 처리]
+      
         int count = memberIconDao.checkUserHasIcon(memberId, picked.getIconId());
         
         if (count > 0) {
-            // -----------------------------------------------------------
-            // [수정 완료] 중복 -> 포인트 환급 (500P 증가)
-            // SQL이 '기존 + 500' 로직이므로, 여기서 500을 넘겨주면 됩니다.
-            // 메서드 이름도 XML ID인 upPoint로 변경했습니다.
-            // -----------------------------------------------------------
+            // [중복 -> 500P 환급]
             memberDao.upPoint(MemberDto.builder()
                     .memberId(memberId)
                     .memberPoint(500) 
                     .build());
             
-            pointHistoryDao.insertHistory(PointHistoryDto.builder()
+            // ★ 수정: PointHistoryDto의 amount가 Long 타입이라면 500L로 명시
+            pointHistoryDao.insert(PointHistoryDto.builder()
                     .pointHistoryMemberId(memberId)
-                    .pointHistoryAmount(500)
-                    .pointHistoryReason("아이콘 중복 환급 [" + picked.getIconName() + "]")
+                    .pointHistoryAmount(500)    // Long 타입 명시 (L)
+                    .pointHistoryTrxType("GET")  
                     .build());
             
             picked.setIconName(picked.getIconName() + " (중복 500P 환급)");
+            
         } else {
-            // 신규 -> 지급
+       
             memberIconDao.insertMemberIcon(memberId, picked.getIconId());
         }
-
+    
         return picked;
     }
- // 아이콘 장착 (트랜잭션 필수)
+
+    // 아이콘 장착
     @Transactional
-public void equipIcon(String memberId, int iconId) {
+    public void equipIcon(String memberId, int iconId) {
+        // 1. 보유 확인
+        int hasIcon = memberIconDao.checkUserHasIcon(memberId, iconId);
+        if (hasIcon == 0) throw new RuntimeException("보유하지 않은 아이콘입니다.");
 
-    // 1. 보유한 아이콘인지 확인
-    int hasIcon = memberIconDao.checkUserHasIcon(memberId, iconId);
-    if (hasIcon == 0) throw new RuntimeException("보유하지 않은 아이콘입니다.");
+        // 2. 기존 장착 해제
+        memberIconDao.unequipAllIcons(memberId);
 
-    // 2. 기존 장착 해제 (MEMBER_ICONS 테이블)
-    memberIconDao.unequipAllIcons(memberId);
+        // 3. 새 아이콘 장착
+        memberIconDao.equipIcon(memberId, iconId);
+    }
 
-    // 3. 새 아이콘 장착
-    memberIconDao.equipIcon(memberId, iconId);
-}
-
-// [해제] 모든 아이콘을 'N'으로 변경
-@Transactional
-public void unequipIcon(String memberId) {
-    memberIconDao.unequipAllIcons(memberId);
-}
+    // 장착 해제
+    @Transactional
+    public void unequipIcon(String memberId) {
+        memberIconDao.unequipAllIcons(memberId);
+    }
 }

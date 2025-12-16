@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 
 @Data @AllArgsConstructor @NoArgsConstructor @Builder
 public class PointDonateVO {
-	private String targetId;
-	private int amount;
-
+    private String targetId;
+    private int amount;
 }

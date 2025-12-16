@@ -77,5 +77,9 @@ public class MemberDao {
 	public boolean delete(String memberId) {
 		return sqlSession.delete("member.delete",memberId) > 0;
 	}
+	
+	public MemberDto selectMap(String memberId) {
+	    return sqlSession.selectOne("member.selectMap", memberId);
+	}
     
 }

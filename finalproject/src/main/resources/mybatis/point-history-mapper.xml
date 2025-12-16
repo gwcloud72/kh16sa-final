@@ -11,89 +11,57 @@
 
   <insert id="insert">
       INSERT INTO point_history(
-          point_history_no, 
+          point_history_id, 
           point_history_member_id, 
           point_history_amount, 
-          point_history_reason, 
-          point_history_item_no
+          point_history_trx_type
       )
       VALUES(
           seq_point_history.nextval, 
           #{pointHistoryMemberId}, 
           #{pointHistoryAmount}, 
-          #{pointHistoryReason},  
-          #{pointHistoryItemNo, jdbcType=NUMERIC} 
+          #{pointHistoryTrxType} 
        )
   </insert>
-<insert id="inserthistory">
-    INSERT INTO point_history(
-        point_history_no,
-        point_history_member_id,
-        point_history_amount,
-        point_history_reason
-    )
-    VALUES(
-        seq_point_history.nextval,
-       #{pointHistoryMemberId},
-        #{pointHistoryAmount},
-        #{pointHistoryReason}
-    )
-</insert>
+
   <select id="selectListByMemberId" resultType="PointHistoryDto">
       SELECT 
-          point_history_no as pointHistoryNo,
+          point_history_id as pointHistoryId,
           point_history_member_id as pointHistoryMemberId,
-          point_history_item_no as pointHistoryItemNo,
           point_history_amount as pointHistoryAmount,
-          point_history_reason as pointHistoryReason,
-          point_history_date as pointHistoryDate
+          point_history_trx_type as pointHistoryTrxType,
+          point_history_created_at as pointHistoryCreatedAt
       FROM point_history
       WHERE point_history_member_id = #{memberId}
-      ORDER BY point_history_no DESC
+      ORDER BY point_history_id DESC
   </select>
   
-  <select id="selectOneNumber" resultType="PointHistoryDto">
+  <select id="selectOne" resultType="PointHistoryDto">
       SELECT 
-          point_history_no as pointHistoryNo,
+          point_history_id as pointHistoryId,
           point_history_member_id as pointHistoryMemberId,
-          point_history_item_no as pointHistoryItemNo,
           point_history_amount as pointHistoryAmount,
-          point_history_reason as pointHistoryReason,
-          point_history_date as pointHistoryDate
+          point_history_trx_type as pointHistoryTrxType,
+          point_history_created_at as pointHistoryCreatedAt
       FROM point_history
-      WHERE point_history_no = #{pointHistoryNo}
+      WHERE point_history_id = #{pointHistoryId}
   </select>
  
   <delete id="delete">
       DELETE FROM point_history
-      WHERE point_history_no = #{pointHistoryNo}
+      WHERE point_history_id = #{pointHistoryId}
   </delete>
   
   <update id="update">
       UPDATE point_history
       SET
-          point_history_reason = #{pointHistoryReason}, 
-          point_history_amount = #{pointHistoryAmount},
-          point_history_item_no = #{pointHistoryItemNo, jdbcType=NUMERIC}
+          point_history_trx_type = #{pointHistoryTrxType}, 
+          point_history_amount = #{pointHistoryAmount}
       WHERE
-          point_history_no = #{pointHistoryNo}
+          point_history_id = #{pointHistoryId}
   </update>
-  
 
-
-<select id="selectCurrentNickStyle" parameterType="string" resultType="string">
-    SELECT point_history_reason 
-    FROM (
-        SELECT point_history_reason
-        FROM point_history
-        WHERE point_history_member_id = #{memberId}
-          AND point_history_reason LIKE '[착용]%' 
-        ORDER BY point_history_no DESC
-    )
-    WHERE ROWNUM &lt;= 1
-</select>
-
-<select id="countHistory" resultType="int">
+  <select id="countHistory" resultType="int">
     SELECT count(*) 
     FROM point_history 
     WHERE point_history_member_id = #{memberId}
@@ -109,12 +77,18 @@
             AND point_history_amount = 0
         </when>
     </choose>
-</select>
+  </select>
 
-<select id="selectListByMemberIdPaging" resultType="com.kh.finalproject.dto.PointHistoryDto">
+  <select id="selectListByMemberIdPaging" resultType="PointHistoryDto">
     SELECT * FROM (
         SELECT TMP.*, ROWNUM RN FROM (
-            SELECT * FROM point_history
+            SELECT 
+                point_history_id as pointHistoryId,
+                point_history_member_id as pointHistoryMemberId,
+                point_history_amount as pointHistoryAmount,
+                point_history_trx_type as pointHistoryTrxType,
+                point_history_created_at as pointHistoryCreatedAt
+            FROM point_history
             WHERE point_history_member_id = #{memberId}
             
             <choose>
@@ -129,10 +103,10 @@
                 </when>
             </choose>
 
-            ORDER BY point_history_no DESC
+            ORDER BY point_history_id DESC
         ) TMP
     )
     WHERE RN BETWEEN #{startRow} AND #{endRow}
-</select>
+  </select>
   
 </mapper>

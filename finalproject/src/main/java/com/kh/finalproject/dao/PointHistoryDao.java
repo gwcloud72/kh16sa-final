@@ -20,9 +20,7 @@ public class PointHistoryDao {
         return sqlSession.insert("pointhistory.insert", pointHistoryDto);
     }
     
-    public int insertHistory(PointHistoryDto pointHistoryDto) { 
-        return sqlSession.insert("pointhistory.inserthistory", pointHistoryDto);
-    }
+
     /* 2. 수정 U */
     public boolean update(PointHistoryDto pointHistoryDto) {
         return sqlSession.update("pointhistory.update", pointHistoryDto) > 0;
@@ -33,24 +31,20 @@ public class PointHistoryDao {
         return sqlSession.selectList("pointhistory.selectListByMemberId", memberId);
     }
 
-    /* 3.(2) 번호 기준 조회 R */
-    public PointHistoryDto selectOneNumber(long pointHistoryNo) {
-        return sqlSession.selectOne("pointhistory.selectOneNumber", pointHistoryNo);
+    /* 3.(2) 번호 기준 조회 R (파라미터명 변경 No -> Id) */
+    public PointHistoryDto selectOne(long pointHistoryId) {
+        return sqlSession.selectOne("pointhistory.selectOne", pointHistoryId);
     }
 
     /* 4. 삭제 D */
-    public boolean delete(long pointHistoryNo) {
-        return sqlSession.delete("pointhistory.delete", pointHistoryNo) > 0;
+    public boolean delete(long pointHistoryId) {
+        return sqlSession.delete("pointhistory.delete", pointHistoryId) > 0;
     }
- // PointHistoryDao.java
+    
+   
 
-    public String selectCurrentNickStyle(String memberId) {
-        return sqlSession.selectOne("pointhistory.selectCurrentNickStyle", memberId);
-    }
-
- // 1. 전체 개수 조회 (필터 포함)
+    /* 5. 전체 개수 조회 (필터 포함) */
     public int countHistory(String memberId, String type) {
-        // [수정] 파라미터가 2개 이상이므로 Map에 담아야 합니다.
         Map<String, Object> params = new HashMap<>();
         params.put("memberId", memberId);
         params.put("type", type);
@@ -58,16 +52,14 @@ public class PointHistoryDao {
         return sqlSession.selectOne("pointhistory.countHistory", params);
     }
 
-    // 2. 페이징 목록 조회 (필터 포함)
+    /* 6. 페이징 목록 조회 (필터 포함) */
     public List<PointHistoryDto> selectListByMemberIdPaging(String memberId, int startRow, int endRow, String type) {
-        
         Map<String, Object> params = new HashMap<>();
         params.put("memberId", memberId);
         params.put("startRow", startRow);
         params.put("endRow", endRow);
-        params.put("type", type); // ★ [추가] 필터 조건(type)도 맵에 추가
-        
+        params.put("type", type);
+
         return sqlSession.selectList("pointhistory.selectListByMemberIdPaging", params);
     }
-
 }

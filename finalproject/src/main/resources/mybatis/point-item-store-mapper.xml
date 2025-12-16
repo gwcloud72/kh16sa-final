@@ -1,22 +1,21 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper
   PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
   "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
   
-<mapper namespace="pointitem">
+<mapper namespace="pointitemstore">
 
     <insert id="insert">
-        INSERT INTO point_item(  
+        INSERT INTO POINT_ITEM_STORE(  
             point_item_no, 
             point_item_name, 
             point_item_type, 
             point_item_content, 
             point_item_price, 
             point_item_stock,
-            point_item_uniques,
             point_item_src,
-            point_item_req_level
-        )
+            point_item_req_level,
+            POINT_ITEM_IS_LIMITED_PURCHASE  )
         VALUES(
             seq_point_item.nextval, 
             #{pointItemName}, 
@@ -24,28 +23,27 @@
             #{pointItemContent},
             #{pointItemPrice}, 
             #{pointItemStock},
-            #{pointItemUniques},
             #{pointItemSrc},
-            #{pointItemReqLevel}
-        )
+            #{pointItemReqLevel},
+            #{pointItemIsLimitedPurchase}   )
     </insert>
   
-   <update id="update">
-        UPDATE point_item
+    <update id="update">
+        UPDATE POINT_ITEM_STORE
         SET
             point_item_name = #{pointItemName},
             point_item_type = #{pointItemType},     
             point_item_content = #{pointItemContent},
             point_item_price = #{pointItemPrice},   
             point_item_stock = #{pointItemStock},
-            point_item_uniques = #{pointItemUniques},
             point_item_src = #{pointItemSrc},
-            point_item_req_level = #{pointItemReqLevel}
+            point_item_req_level = #{pointItemReqLevel},
+            POINT_ITEM_IS_LIMITED_PURCHASE = #{pointItemIsLimitedPurchase} 
         WHERE
             point_item_no = #{pointItemNo}
     </update>
   
-    <select id="selectList" resultType="PointItemDto">
+    <select id="selectList" resultType="PointItemStoreDto">
         SELECT 
             point_item_no as pointItemNo,
             point_item_name as pointItemName,
@@ -54,14 +52,14 @@
             point_item_price as pointItemPrice,
             point_item_stock as pointItemStock,
             point_item_src as pointItemSrc,
-            point_item_uniques as pointItemUniques,
             point_item_reg_date as pointItemRegDate,
-            point_item_req_level as pointItemReqLevel
-        FROM point_item
+            point_item_req_level as pointItemReqLevel,
+            POINT_ITEM_IS_LIMITED_PURCHASE as pointItemIsLimitedPurchase 
+        FROM POINT_ITEM_STORE
         ORDER BY point_item_no DESC
     </select>
   
-    <select id="selectOneNumber" resultType="PointItemDto">
+    <select id="selectOneNumber" resultType="PointItemStoreDto">
         SELECT 
             point_item_no as pointItemNo,
             point_item_name as pointItemName,
@@ -70,14 +68,16 @@
             point_item_price as pointItemPrice,
             point_item_stock as pointItemStock,
             point_item_src as pointItemSrc,
-            point_item_uniques as pointItemUniques,
             point_item_reg_date as pointItemRegDate,
-            point_item_req_level as pointItemReqLevel
-        FROM point_item
-        WHERE point_item_no = #{pointItemNo}
+            point_item_req_level as pointItemReqLevel,
+            POINT_ITEM_IS_LIMITED_PURCHASE as pointItemIsLimitedPurchase 
+        FROM POINT_ITEM_STORE
+        WHERE point_item_no = #{itemNo}
     </select>
-   <delete id="delete">
-        DELETE FROM point_item
+    
+    <delete id="delete">
+        DELETE FROM POINT_ITEM_STORE
         WHERE point_item_no = #{pointItemNo}
     </delete>
+    
 </mapper>

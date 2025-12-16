@@ -1,6 +1,8 @@
 package com.kh.finalproject.restcontroller;
 
 import java.util.List;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,47 +18,77 @@ public class IconRestController {
 
     @Autowired private IconService iconService;
 
-    // [관리자] 전체 목록
+    // ---------------------------------------------------
+    // [관리자] 기능
+    // ---------------------------------------------------
     @GetMapping("/admin/list")
     public List<IconDto> adminList() {
         return iconService.getAllIcons();
     }
 
-    // [관리자] 등록
     @PostMapping("/admin/add")
     public String add(@RequestBody IconDto dto) {
         iconService.addIcon(dto);
         return "success";
     }
 
-    // [관리자] 수정
     @PostMapping("/admin/edit")
     public String edit(@RequestBody IconDto dto) {
         iconService.editIcon(dto);
         return "success";
     }
 
-    // [관리자] 삭제
     @DeleteMapping("/admin/delete/{iconId}")
     public String delete(@PathVariable int iconId) {
         iconService.removeIcon(iconId);
         return "success";
     }
 
-    // [사용자] 뽑기 실행
-    @PostMapping("/icon/draw")
+    // ---------------------------------------------------
+    // [사용자] 기능
+    // ---------------------------------------------------
+
+    // 1. 뽑기 실행
+    // (수정됨) URL 중복 방지를 위해 "/icon/draw" -> "/draw" 로 변경
+    // 최종 URL: POST /icon/draw
+    @PostMapping("/draw") 
     public IconDto drawIcon(
             @RequestAttribute(value="loginId", required=false) String loginId,
-            @RequestBody PointUseVO vo) { // ★ 인벤토리 번호를 받기 위해 VO 사용
+            @RequestBody PointUseVO vo) { 
         
         if(loginId == null) throw new RuntimeException("로그인 필요");
         
-        // 서비스로 티켓 번호(inventoryNo) 전달
+        // Service에 inventoryNo(long) 전달
         return iconService.drawRandomIcon(loginId, vo.getInventoryNo());
     }
-    // [사용자] 내 아이콘함 조회
+
+    // 2. 내 아이콘함 조회
+    // 최종 URL: GET /icon/my
     @GetMapping("/my")
     public List<MemberIconDto> myIcons(@RequestAttribute("loginId") String loginId) {
+        // DTO 필드명이 memberId, iconId로 바뀌었으므로
+        // React에서도 res.data[0].memberId 처럼 접근해야 함을 주의하세요!
         return iconService.getMyIcons(loginId);
+    }
+    
+    // 3. (추가됨) 아이콘 장착
+    // 최종 URL: POST /icon/equip
+    // Body: { "iconId": 5 }
+    @PostMapping("/equip")
+    public String equipIcon(
+            @RequestAttribute("loginId") String loginId,
+            @RequestBody Map<String, Integer> params) { // 간단하게 Map으로 받음
+        
+        int iconId = params.get("iconId");
+        iconService.equipIcon(loginId, iconId);
+        return "success";
+    }
+    
+    // 4. (추가됨) 아이콘 장착 해제 (전체 해제)
+    // 최종 URL: POST /icon/unequip
+    @PostMapping("/unequip")
+    public String unequipIcon(@RequestAttribute("loginId") String loginId) {
+        iconService.unequipIcon(loginId);
+        return "success";
     }
 }

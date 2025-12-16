@@ -15,37 +15,42 @@ public class MemberIconDao {
     @Autowired 
     private SqlSession sqlSession;
 
-    // 내 보유 아이콘 목록 조회
+    // 1. 내 보유 아이콘 목록 조회
     public List<MemberIconDto> selectMyIcons(String memberId) {
+        // Mapper의 #{memberId}와 연결됨
         return sqlSession.selectList("memberIcon.selectMyIcons", memberId);
     }
 
-    // 유저가 이미 해당 아이콘을 가졌는지 확인 (중복 체크)
+    // 2. 유저가 이미 해당 아이콘을 가졌는지 확인
     public int checkUserHasIcon(String memberId, int iconId) {
         Map<String, Object> params = new HashMap<>();
-        params.put("memberId", memberId);
-        params.put("iconId", iconId);
+        params.put("memberId", memberId); // Mapper의 #{memberId}
+        params.put("iconId", iconId);     // Mapper의 #{iconId}
         return sqlSession.selectOne("memberIcon.checkUserHasIcon", params);
     }
 
-    // 유저에게 아이콘 지급 (보유 목록 추가)
+    // 3. 유저에게 아이콘 지급
     public int insertMemberIcon(String memberId, int iconId) {
         Map<String, Object> params = new HashMap<>();
-        params.put("memberId", memberId);
-        params.put("iconId", iconId);
+        params.put("memberId", memberId); // Mapper의 #{memberId}
+        params.put("iconId", iconId);     // Mapper의 #{iconId}
         return sqlSession.insert("memberIcon.insertMemberIcon", params);
     }
+
+    // 4. 모든 아이콘 장착 해제
     public void unequipAllIcons(String memberId) {
         sqlSession.update("memberIcon.unequipAllIcons", memberId);
     }
 
-    // 2. 특정 아이콘 장착 (Y로 변경)
+    // 5. 특정 아이콘 장착
     public void equipIcon(String memberId, int iconId) {
         Map<String, Object> params = new HashMap<>();
-        params.put("memberId", memberId);
-        params.put("iconId", iconId);
+        params.put("memberId", memberId); // Mapper의 #{memberId}
+        params.put("iconId", iconId);     // Mapper의 #{iconId}
         sqlSession.update("memberIcon.equipIcon", params);
     }
+
+    // 6. 현재 장착 중인 아이콘 이미지 조회
     public String selectEquippedIconSrc(String memberId) {
         Map<String, Object> param = new HashMap<>();
         param.put("memberId", memberId);

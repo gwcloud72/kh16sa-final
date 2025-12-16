@@ -39,7 +39,7 @@ public class AttendanceRestController {
 		try {
 			attendanceService.checkAttendance(loginId);
 			// 프론트에서 success 문자열로 성공 여부 판단하므로 형식 맞춤
-			return ResponseEntity.ok("success:10"); 
+			return ResponseEntity.ok("success:100"); 
 		} catch (IllegalStateException e) {
 			return ResponseEntity.ok("fail:" + e.getMessage());
 		} catch (Exception e) {

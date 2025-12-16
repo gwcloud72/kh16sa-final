@@ -3,75 +3,75 @@
 
 <mapper namespace="memberIcon">
 
-    <select id="selectMyIcons" resultType="MemberIconDto">
-        SELECT 
-            MI.member_icon_id       AS "memberIconId",
-            MI.member_icon_member   AS "memberIconMember",
-            MI.member_icon_icon     AS "memberIconIcon",
-            MI.member_icon_obtain_time AS "memberIconObtainTime",
-            MI.is_equipped          AS "isEquipped",
+  <select id="selectMyIcons" resultType="MemberIconDto">
+    SELECT 
+        MI.MEMBER_ICONS_ID          AS "memberIconId",
+        MI.MEMBER_ICONS_MEMBER_ID   AS "memberId",    
+        MI.MEMBER_ICONS_ICON_ID     AS "iconId",      
+        MI.MEMBER_ICONS_OBTAIN_TIME AS "memberIconObtainTime",
+        MI.IS_EQUIPPED              AS "isEquipped",
 
-            /* 아이콘 정보 */
-            I.icon_name             AS "iconName",
-            I.icon_rarity           AS "iconRarity",
-            I.icon_src              AS "iconSrc"
+        I.ICON_NAME                 AS "iconName",
+        I.ICON_RARITY               AS "iconRarity",
+        I.ICON_SRC                  AS "iconSrc"
 
-        FROM MEMBER_ICONS MI
-        JOIN ICON I ON MI.member_icon_icon = I.icon_id
-        WHERE MI.member_icon_member = #{memberId}
-        ORDER BY 
-            CASE I.icon_rarity 
-                WHEN 'LEGENDARY' THEN 1
-                WHEN 'UNIQUE' THEN 2
-                WHEN 'EPIC' THEN 3
-                WHEN 'RARE' THEN 4
-                WHEN 'COMMON' THEN 5
-                ELSE 6 
-            END ASC,
-            MI.member_icon_obtain_time DESC
-    </select>
+    FROM MEMBER_ICONS MI
+    JOIN ICON I ON MI.MEMBER_ICONS_ICON_ID = I.ICON_ID
+    WHERE MI.MEMBER_ICONS_MEMBER_ID = #{memberId}
+    ORDER BY 
+        -- ★ 등급 정렬 로직 수정 (COMMON 추가)
+        CASE I.ICON_RARITY 
+            WHEN 'LEGENDARY' THEN 1
+            WHEN 'UNIQUE'    THEN 2
+            WHEN 'EPIC'      THEN 3
+            WHEN 'RARE'      THEN 4
+            WHEN 'COMMON'    THEN 5  WHEN 'EVENT'     THEN 6  ELSE 7 
+        END ASC,
+        MI.MEMBER_ICONS_OBTAIN_TIME DESC
+</select>
 
     <select id="checkUserHasIcon" resultType="int">
         SELECT count(*) 
         FROM MEMBER_ICONS 
-        WHERE member_icon_member = #{memberId} 
-          AND member_icon_icon = #{iconId}
+        WHERE MEMBER_ICONS_MEMBER_ID = #{memberId} 
+          AND MEMBER_ICONS_ICON_ID = #{iconId}
     </select>
 
     <insert id="insertMemberIcon">
         INSERT INTO MEMBER_ICONS (
-            member_icon_id, 
-            member_icon_member, 
-            member_icon_icon, 
-            member_icon_obtain_time
+            MEMBER_ICONS_ID, 
+            MEMBER_ICONS_MEMBER_ID, 
+            MEMBER_ICONS_ICON_ID, 
+            MEMBER_ICONS_OBTAIN_TIME
         )
         VALUES (
             seq_member_icons.nextval, 
-            #{memberId}, 
-            #{iconId}, 
-            SYSDATE
+            #{memberId},  -- DAO에서 "memberId"로 보냄
+            #{iconId},    -- DAO에서 "iconId"로 보냄
+            SYSTIMESTAMP
         )
     </insert>
 
     <update id="unequipAllIcons">
         UPDATE MEMBER_ICONS 
         SET IS_EQUIPPED = 'N'
-        WHERE MEMBER_ICON_MEMBER = #{memberId}
+        WHERE MEMBER_ICONS_MEMBER_ID = #{memberId}
     </update>
 
     <update id="equipIcon">
         UPDATE MEMBER_ICONS
         SET IS_EQUIPPED = 'Y'
-        WHERE MEMBER_ICON_MEMBER = #{memberId}
-        AND MEMBER_ICON_ICON = #{iconId}
+        WHERE MEMBER_ICONS_MEMBER_ID = #{memberId}
+          AND MEMBER_ICONS_ICON_ID = #{iconId}
     </update>
     
-
 <select id="selectEquippedIconSrc" parameterType="string" resultType="string">
     SELECT I.ICON_SRC
-      FROM MEMBER_ICONS MI
-      JOIN ICON I ON MI.MEMBER_ICON_ICON = I.ICON_ID
-     WHERE MI.MEMBER_ICON_MEMBER = #{memberId}
-       AND MI.IS_EQUIPPED = 'Y'
-       AND ROWNUM &lt;= 1   </select>
+    FROM MEMBER_ICONS MI
+    JOIN ICON I ON MI.MEMBER_ICONS_ICON_ID = I.ICON_ID
+    WHERE MI.MEMBER_ICONS_MEMBER_ID = #{memberId}
+      AND MI.IS_EQUIPPED = 'Y'  -- ★ 여기서 'Y'인걸 못 찾고 있을 수 있음
+      AND ROWNUM &lt;= 1   
+</select>
+
 </mapper>

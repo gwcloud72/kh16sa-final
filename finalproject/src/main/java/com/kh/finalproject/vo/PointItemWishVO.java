@@ -12,5 +12,5 @@ import lombok.NoArgsConstructor;
 @Data @Builder @NoArgsConstructor @AllArgsConstructor
 public class PointItemWishVO {
     private String memberId;
-    private int itemNo;
+    private long itemNo;
 }

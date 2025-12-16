@@ -83,24 +83,22 @@
         UPDATE MEMBER SET MEMBER_ICON_NO = NULL WHERE MEMBER_ID = #{memberId}
     </update>
     
-<select id="selectMemberPointInfo" resultType="MemberPointVO">
+<select id="selectMap" resultType="MemberDto">
     SELECT 
-        M.member_id        AS "memberId",
-        M.member_nick      AS "nickname",
-        M.member_point     AS "point",
-        M.member_level     AS "level",
-        M.member_nick_style AS "nickStyle",
-
-        -- ⭐ 장착 중 아이콘 이미지 경로
-        (SELECT I.icon_src
-         FROM MEMBER_ICONS MI
-         JOIN ICON I ON MI.member_icon_icon = I.icon_id
-         WHERE MI.member_icon_member = M.member_id
-           AND MI.is_equipped = 'Y'
-         FETCH FIRST 1 ROWS ONLY) AS "iconSrc"
-
-    FROM MEMBER M
-    WHERE M.member_id = #{memberId}
+        MEMBER_ID as memberId,
+        MEMBER_PW as memberPw,
+        MEMBER_NICKNAME as memberNickname,
+        MEMBER_EMAIL as memberEmail,
+        MEMBER_CONTACT as memberContact,
+        MEMBER_BIRTH as memberBirth,
+        MEMBER_POST as memberPost,
+        MEMBER_ADDRESS1 as memberAddress1,
+        MEMBER_ADDRESS2 as memberAddress2,
+        MEMBER_LEVEL as memberLevel,
+        MEMBER_POINT as memberPoint,
+        MEMBER_JOIN as memberJoin
+        FROM MEMBER
+    WHERE MEMBER_ID = #{memberId}
 </select>
 
 <update id="upPoint">
@@ -108,6 +106,7 @@
     SET member_point = member_point + #{memberPoint}
     WHERE member_id = #{memberId}
 </update>
+	
 
 
 </mapper>
